@@ -8,3 +8,5 @@
 > Commits you push to the connected branch sync back to Lovable and show up in
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
+
+- Documents are shared by the whole signed-in team (RLS: any authenticated user); renewal date and status are computed client-side in src/lib/docs.ts — keeps a single source of truth from vencimento + antecedência.
