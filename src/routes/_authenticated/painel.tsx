@@ -219,7 +219,7 @@ function Editor({ doc, onSaved }: { doc: Documento; onSaved: () => void }) {
   async function baixar() {
     if (!doc.arquivo_path) return;
     const { data, error } = await supabase.storage.from("documentos").createSignedUrl(doc.arquivo_path, 120);
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     window.open(data.signedUrl, "_blank");
   }
 

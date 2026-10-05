@@ -5,7 +5,7 @@ export type Status = "sem_vencimento" | "pendente" | "em_dia" | "renovar" | "ven
 
 export function parseDate(d: string | null) {
   if (!d) return null;
-  const [y, m, day] = d.split("-").map(Number);
+  const [y = 0, m = 1, day = 1] = d.split("-").map(Number);
   return new Date(y, m - 1, day);
 }
 
