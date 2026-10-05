@@ -1,8 +1,8 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useState } from "react";
-import { Fuel } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import logoAsset from "@/assets/logo-posto-natal.jpg.asset.json";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -14,6 +14,8 @@ export const Route = createFileRoute("/auth")({
       { name: "description", content: "Acesso da equipe ao painel de documentos do Posto Natal." },
       { property: "og:title", content: "Entrar — Posto Natal" },
       { property: "og:description", content: "Acesso da equipe ao painel de documentos." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: AuthPage,
@@ -50,9 +52,8 @@ function AuthPage() {
   return (
     <div className="grid min-h-screen place-items-center bg-background px-4">
       <div className="w-full max-w-sm">
-        <Link to="/" className="mb-8 flex items-center gap-2 font-display text-lg font-semibold">
-          <span className="grid h-9 w-9 place-items-center rounded-md bg-primary text-primary-foreground"><Fuel className="h-5 w-5" /></span>
-          Posto Natal
+        <Link to="/" className="mb-8 block w-fit">
+          <img src={logoAsset.url} alt="Posto Natal" className="h-16 w-auto object-contain" />
         </Link>
         <form onSubmit={submit} className="space-y-4 rounded-lg border bg-card p-6 shadow-sm">
           <h1 className="text-2xl font-bold">{modo === "entrar" ? "Entrar" : "Criar conta"}</h1>

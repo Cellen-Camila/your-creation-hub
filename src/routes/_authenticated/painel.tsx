@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
-import { Fuel, LogOut, Paperclip, Search, Download } from "lucide-react";
+import { LogOut, Paperclip, Search, Download } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import logoAsset from "@/assets/logo-posto-natal.jpg.asset.json";
 import {
   type Documento, type Status, statusDe, renovarEm, parseDate, diasAte, fmt, STATUS_LABEL, STATUS_CLASS,
 } from "@/lib/docs";
@@ -20,6 +21,8 @@ export const Route = createFileRoute("/_authenticated/painel")({
       { name: "description", content: "Painel de vencimentos de documentos e licenças." },
       { property: "og:title", content: "Painel — Posto Natal" },
       { property: "og:description", content: "Painel de vencimentos de documentos e licenças." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: Painel,
@@ -75,9 +78,11 @@ function Painel() {
     <div className="min-h-screen bg-background">
       <header className="bg-ink text-ink-foreground">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
-          <div className="flex items-center gap-2 font-display font-semibold">
-            <span className="grid h-8 w-8 place-items-center rounded-md bg-accent text-accent-foreground"><Fuel className="h-4 w-4" /></span>
-            Posto Natal · Documentos
+          <div className="flex items-center gap-3">
+            <span className="rounded-sm bg-card px-2 py-1">
+              <img src={logoAsset.url} alt="Posto Natal" className="h-9 w-auto object-contain" />
+            </span>
+            <span className="hidden font-display font-semibold sm:inline">Documentos</span>
           </div>
           <div className="flex items-center gap-4 text-sm">
             <span className="hidden text-ink-foreground/70 sm:inline">{user.email}</span>
