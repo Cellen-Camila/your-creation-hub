@@ -14,7 +14,63 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      documentos: {
+        Row: {
+          antecedencia_dias: number | null
+          arquivo_nome: string | null
+          arquivo_path: string | null
+          base_legal: string | null
+          categoria: string
+          created_at: string
+          emissao: string | null
+          id: string
+          nome: string
+          observacoes: string | null
+          ordem: number
+          orgao: string
+          tipo_prazo: string
+          updated_at: string
+          validade_tipica: string | null
+          vencimento: string | null
+        }
+        Insert: {
+          antecedencia_dias?: number | null
+          arquivo_nome?: string | null
+          arquivo_path?: string | null
+          base_legal?: string | null
+          categoria: string
+          created_at?: string
+          emissao?: string | null
+          id?: string
+          nome: string
+          observacoes?: string | null
+          ordem?: number
+          orgao: string
+          tipo_prazo: string
+          updated_at?: string
+          validade_tipica?: string | null
+          vencimento?: string | null
+        }
+        Update: {
+          antecedencia_dias?: number | null
+          arquivo_nome?: string | null
+          arquivo_path?: string | null
+          base_legal?: string | null
+          categoria?: string
+          created_at?: string
+          emissao?: string | null
+          id?: string
+          nome?: string
+          observacoes?: string | null
+          ordem?: number
+          orgao?: string
+          tipo_prazo?: string
+          updated_at?: string
+          validade_tipica?: string | null
+          vencimento?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
