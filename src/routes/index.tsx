@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Fuel, ShieldCheck, Bell, FolderOpen } from "lucide-react";
+import { ShieldCheck, Bell, FolderOpen } from "lucide-react";
+import logoAsset from "@/assets/logo-posto-natal.jpg.asset.json";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -8,6 +9,8 @@ export const Route = createFileRoute("/")({
       { name: "description", content: "Plataforma da equipe do Posto Natal para controlar vencimentos de licenças, certidões e laudos." },
       { property: "og:title", content: "Posto Natal — Documentos e Licenças em dia" },
       { property: "og:description", content: "Controle de vencimentos, arquivos e alertas de renovação para o Posto Natal." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: Index,
@@ -22,10 +25,7 @@ function Index() {
   return (
     <div className="min-h-screen bg-ink text-ink-foreground">
       <header className="mx-auto flex max-w-6xl items-center justify-between px-6 py-6">
-        <div className="flex items-center gap-2 font-display text-lg font-semibold">
-          <span className="grid h-9 w-9 place-items-center rounded-md bg-accent text-accent-foreground"><Fuel className="h-5 w-5" /></span>
-          Posto Natal
-        </div>
+        <img src={logoAsset.url} alt="Posto Natal" className="h-14 w-auto rounded-sm bg-card object-contain" />
         <Link to="/auth" className="rounded-md border border-ink-foreground/30 px-4 py-2 text-sm font-medium hover:bg-ink-foreground/10">Entrar</Link>
       </header>
       <main className="mx-auto max-w-6xl px-6 pb-24 pt-16">
