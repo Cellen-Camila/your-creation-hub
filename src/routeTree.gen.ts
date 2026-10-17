@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AuthenticatedInicioRouteImport } from './routes/_authenticated/inicio'
 import { Route as AuthenticatedPainelRouteImport } from './routes/_authenticated/painel'
 import { Route as AuthenticatedModulosIndexRouteImport } from './routes/_authenticated/modulos/index'
 import { Route as AuthenticatedModulosModuloRouteImport } from './routes/_authenticated/modulos/$modulo'
@@ -29,6 +30,11 @@ const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedInicioRoute = AuthenticatedInicioRouteImport.update({
+  id: '/inicio',
+  path: '/inicio',
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedPainelRoute = AuthenticatedPainelRouteImport.update({
   id: '/painel',
@@ -51,6 +57,7 @@ const AuthenticatedModulosModuloRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/inicio': typeof AuthenticatedInicioRoute
   '/painel': typeof AuthenticatedPainelRoute
   '/modulos/$modulo': typeof AuthenticatedModulosModuloRoute
   '/modulos/': typeof AuthenticatedModulosIndexRoute
@@ -58,6 +65,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/inicio': typeof AuthenticatedInicioRoute
   '/painel': typeof AuthenticatedPainelRoute
   '/modulos/$modulo': typeof AuthenticatedModulosModuloRoute
   '/modulos': typeof AuthenticatedModulosIndexRoute
@@ -67,20 +75,23 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
+  '/_authenticated/inicio': typeof AuthenticatedInicioRoute
   '/_authenticated/painel': typeof AuthenticatedPainelRoute
   '/_authenticated/modulos/$modulo': typeof AuthenticatedModulosModuloRoute
   '/_authenticated/modulos/': typeof AuthenticatedModulosIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/auth' | '/painel' | '/modulos/$modulo' | '/modulos/'
+  fullPaths:
+    '/' | '/auth' | '/inicio' | '/painel' | '/modulos/$modulo' | '/modulos/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/painel' | '/modulos/$modulo' | '/modulos'
+  to: '/' | '/auth' | '/inicio' | '/painel' | '/modulos/$modulo' | '/modulos'
   id:
     | '__root__'
     | '/'
     | '/_authenticated'
     | '/auth'
+    | '/_authenticated/inicio'
     | '/_authenticated/painel'
     | '/_authenticated/modulos/$modulo'
     | '/_authenticated/modulos/'
@@ -115,6 +126,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/inicio': {
+      id: '/_authenticated/inicio'
+      path: '/inicio'
+      fullPath: '/inicio'
+      preLoaderRoute: typeof AuthenticatedInicioRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/painel': {
       id: '/_authenticated/painel'
       path: '/painel'
@@ -140,12 +158,14 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedInicioRoute: typeof AuthenticatedInicioRoute
   AuthenticatedPainelRoute: typeof AuthenticatedPainelRoute
   AuthenticatedModulosModuloRoute: typeof AuthenticatedModulosModuloRoute
   AuthenticatedModulosIndexRoute: typeof AuthenticatedModulosIndexRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedInicioRoute: AuthenticatedInicioRoute,
   AuthenticatedPainelRoute: AuthenticatedPainelRoute,
   AuthenticatedModulosModuloRoute: AuthenticatedModulosModuloRoute,
   AuthenticatedModulosIndexRoute: AuthenticatedModulosIndexRoute,

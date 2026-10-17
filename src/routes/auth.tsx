@@ -2,7 +2,7 @@ import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import logoAsset from "@/assets/logo-posto-natal.jpg.asset.json";
+import { Logo } from "@/components/layout/Logo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -35,9 +35,9 @@ function AuthPage() {
       if (modo === "entrar") {
         const { error } = await supabase.auth.signInWithPassword({ email, password: senha });
         if (error) throw error;
-        navigate({ to: "/painel" });
+        navigate({ to: "/inicio" });
       } else {
-        const { error } = await supabase.auth.signUp({ email, password: senha, options: { emailRedirectTo: window.location.origin + "/painel" } });
+        const { error } = await supabase.auth.signUp({ email, password: senha, options: { emailRedirectTo: window.location.origin + "/inicio" } });
         if (error) throw error;
         toast.success("Conta criada! Confirme pelo link enviado ao seu e-mail.");
         setModo("entrar");
@@ -53,7 +53,7 @@ function AuthPage() {
     <div className="grid min-h-screen place-items-center bg-background px-4">
       <div className="w-full max-w-sm">
         <Link to="/" className="mb-8 block w-fit">
-          <img src={logoAsset.url} alt="Posto Natal" className="h-16 w-auto object-contain" />
+          <Logo fundoClaro />
         </Link>
         <form onSubmit={submit} className="space-y-4 rounded-lg border bg-card p-6 shadow-sm">
           <h1 className="text-2xl font-bold">{modo === "entrar" ? "Entrar" : "Criar conta"}</h1>
