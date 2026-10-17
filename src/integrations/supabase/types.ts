@@ -22,12 +22,15 @@ export type Database = {
           base_legal: string | null
           categoria: string
           created_at: string
+          custo_renovacao: number | null
           emissao: string | null
           id: string
           nome: string
+          numero: string | null
           observacoes: string | null
           ordem: number
           orgao: string
+          responsavel: string | null
           tipo_prazo: string
           updated_at: string
           validade_tipica: string | null
@@ -40,12 +43,15 @@ export type Database = {
           base_legal?: string | null
           categoria: string
           created_at?: string
+          custo_renovacao?: number | null
           emissao?: string | null
           id?: string
           nome: string
+          numero?: string | null
           observacoes?: string | null
           ordem?: number
           orgao: string
+          responsavel?: string | null
           tipo_prazo: string
           updated_at?: string
           validade_tipica?: string | null
@@ -58,12 +64,15 @@ export type Database = {
           base_legal?: string | null
           categoria?: string
           created_at?: string
+          custo_renovacao?: number | null
           emissao?: string | null
           id?: string
           nome?: string
+          numero?: string | null
           observacoes?: string | null
           ordem?: number
           orgao?: string
+          responsavel?: string | null
           tipo_prazo?: string
           updated_at?: string
           validade_tipica?: string | null
@@ -71,12 +80,111 @@ export type Database = {
         }
         Relationships: []
       }
+      renovacao_anexos: {
+        Row: {
+          arquivo_nome: string
+          arquivo_path: string
+          created_at: string
+          etapa: string
+          id: string
+          renovacao_id: string
+        }
+        Insert: {
+          arquivo_nome: string
+          arquivo_path: string
+          created_at?: string
+          etapa: string
+          id?: string
+          renovacao_id: string
+        }
+        Update: {
+          arquivo_nome?: string
+          arquivo_path?: string
+          created_at?: string
+          etapa?: string
+          id?: string
+          renovacao_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "renovacao_anexos_renovacao_id_fkey"
+            columns: ["renovacao_id"]
+            isOneToOne: false
+            referencedRelation: "renovacoes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      renovacoes: {
+        Row: {
+          concluida_em: string | null
+          created_at: string
+          criado_por: string | null
+          custo: number | null
+          documento_id: string
+          etapa: string
+          id: string
+          iniciada_em: string
+          novo_vencimento: string | null
+          observacoes: string | null
+          protocolo: string | null
+          updated_at: string
+          vencimento_anterior: string | null
+        }
+        Insert: {
+          concluida_em?: string | null
+          created_at?: string
+          criado_por?: string | null
+          custo?: number | null
+          documento_id: string
+          etapa?: string
+          id?: string
+          iniciada_em?: string
+          novo_vencimento?: string | null
+          observacoes?: string | null
+          protocolo?: string | null
+          updated_at?: string
+          vencimento_anterior?: string | null
+        }
+        Update: {
+          concluida_em?: string | null
+          created_at?: string
+          criado_por?: string | null
+          custo?: number | null
+          documento_id?: string
+          etapa?: string
+          id?: string
+          iniciada_em?: string
+          novo_vencimento?: string | null
+          observacoes?: string | null
+          protocolo?: string | null
+          updated_at?: string
+          vencimento_anterior?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "renovacoes_documento_id_fkey"
+            columns: ["documento_id"]
+            isOneToOne: false
+            referencedRelation: "documentos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      concluir_renovacao: {
+        Args: {
+          p_custo: number | null
+          p_emissao: string | null
+          p_renovacao: string
+          p_vencimento: string | null
+        }
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never

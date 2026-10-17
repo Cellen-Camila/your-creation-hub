@@ -1,17 +1,17 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useMemo, useState } from "react";
-import { LogOut, Paperclip, Search, Download } from "lucide-react";
-import { toast } from "sonner";
+import { useCallback, useMemo, useState } from "react";
+import { LogOut, Paperclip, Plus, Search } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { Sheet, SheetContent } from "@/components/ui/sheet";
+import { Editor } from "@/components/documentos/Editor";
+import { NovoDocumento } from "@/components/documentos/NovoDocumento";
 import logoAsset from "@/assets/logo-posto-natal.jpg.asset.json";
 import {
-  type Documento, type Status, statusDe, renovarEm, parseDate, diasAte, fmt, STATUS_LABEL, STATUS_CLASS,
+  type Documento, type Renovacao, type Status, statusDe, renovarEm, parseDate, diasAte, fmt, brl,
+  faixaAlerta, FAIXAS_ALERTA, custosPorAno, etapaLabel, STATUS_LABEL, STATUS_CLASS,
 } from "@/lib/docs";
 
 export const Route = createFileRoute("/_authenticated/painel")({
@@ -28,7 +28,12 @@ export const Route = createFileRoute("/_authenticated/painel")({
   component: Painel,
 });
 
-const FILTROS: (Status | "todos")[] = ["todos", "vencido", "renovar", "pendente", "em_dia", "sem_vencimento"];
+const FILTROS: (Status | "todos")[] = ["todos", "vencido", "renovar", "em_renovacao", "pendente", "em_dia", "sem_vencimento"];
+const CARDS: Status[] = ["vencido", "renovar", "em_renovacao", "em_dia", "pendente"];
+
+type Faixa = ReturnType<typeof faixaAlerta>;
+const FAIXA_LABEL = (f: NonNullable<Faixa> | "aberto") =>
+  f === "vencido" ? "Vencidos" : f === "aberto" ? "Prazo de renovação aberto" : `Até ${f} dias`;
 
 function Painel() {
   const navigate = useNavigate();
@@ -37,6 +42,7 @@ function Painel() {
   const [filtro, setFiltro] = useState<Status | "todos">("todos");
   const [busca, setBusca] = useState("");
   const [aberto, setAberto] = useState<Documento | null>(null);
+  const [novo, setNovo] = useState(false);
 
   const { data: docs = [], isLoading } = useQuery({
     queryKey: ["documentos"],
@@ -47,25 +53,52 @@ function Painel() {
     },
   });
 
+  // null = tabela de renovações indisponível (migração ainda não aplicada); o painel segue funcionando sem ela.
+  const { data: renovacoes = null } = useQuery({
+    queryKey: ["renovacoes"],
+    queryFn: async (): Promise<Renovacao[] | null> => {
+      const { data, error } = await supabase.from("renovacoes").select("*").order("iniciada_em", { ascending: false });
+      if (error) { console.warn("Renovações indisponíveis:", error.message); return null; }
+      return data;
+    },
+  });
+
+  const abertas = useMemo(() => new Map((renovacoes ?? []).filter((r) => !r.concluida_em).map((r) => [r.documento_id, r])), [renovacoes]);
+  const status = useCallback((d: Documento) => statusDe(d, undefined, abertas.has(d.id)), [abertas]);
+
   const contagem = useMemo(() => {
     const c: Record<string, number> = { todos: docs.length };
-    docs.forEach((d) => { const s = statusDe(d); c[s] = (c[s] ?? 0) + 1; });
+    docs.forEach((d) => { const s = status(d); c[s] = (c[s] ?? 0) + 1; });
     return c;
-  }, [docs]);
+  }, [docs, status]);
 
-  const proximos = useMemo(
-    () => docs.filter((d) => ["vencido", "renovar"].includes(statusDe(d)))
-      .sort((a, b) => (parseDate(a.vencimento)!.getTime() - parseDate(b.vencimento)!.getTime())),
-    [docs],
-  );
+  // PRD LIC-02: documentos com vencimento nos próximos 90 dias, agrupados por faixa de alerta.
+  const alertas = useMemo(() => {
+    const g = new Map<NonNullable<Faixa> | "aberto", { doc: Documento; dias: number }[]>();
+    for (const d of docs) {
+      const s = status(d);
+      if (s === "sem_vencimento" || s === "em_renovacao" || s === "pendente") continue;
+      const dias = diasAte(parseDate(d.vencimento))!;
+      const faixa = faixaAlerta(dias) ?? (s === "renovar" ? "aberto" : null);
+      if (faixa) g.set(faixa, [...(g.get(faixa) ?? []), { doc: d, dias }]);
+    }
+    const ordem: (NonNullable<Faixa> | "aberto")[] = ["vencido", ...FAIXAS_ALERTA, "aberto"];
+    return ordem.filter((f) => g.has(f)).map((f) => [f, g.get(f)!.sort((a, b) => a.dias - b.dias)] as const);
+  }, [docs, status]);
+
+  const custos = useMemo(() => custosPorAno(renovacoes ?? []), [renovacoes]);
 
   const grupos = useMemo(() => {
     const q = busca.toLowerCase();
-    const lista = docs.filter((d) => (filtro === "todos" || statusDe(d) === filtro) && (!q || `${d.nome} ${d.orgao}`.toLowerCase().includes(q)));
+    const lista = docs.filter((d) => (filtro === "todos" || status(d) === filtro)
+      && (!q || `${d.nome} ${d.orgao} ${d.numero ?? ""} ${d.responsavel ?? ""}`.toLowerCase().includes(q)));
     const g = new Map<string, Documento[]>();
     lista.forEach((d) => g.set(d.categoria, [...(g.get(d.categoria) ?? []), d]));
     return [...g.entries()];
-  }, [docs, filtro, busca]);
+  }, [docs, filtro, busca, status]);
+
+  const categorias = useMemo(() => [...new Set(docs.map((d) => d.categoria))], [docs]);
+  const fechar = () => { setAberto(null); setNovo(false); qc.invalidateQueries({ queryKey: ["documentos"] }); };
 
   async function sair() {
     await qc.cancelQueries();
@@ -92,8 +125,14 @@ function Painel() {
       </header>
 
       <main className="mx-auto max-w-7xl px-6 py-8">
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          {(["vencido", "renovar", "pendente", "em_dia"] as Status[]).map((s) => (
+        {renovacoes === null && !isLoading && (
+          <p className="mb-6 rounded-md border bg-muted p-3 text-sm text-muted-foreground">
+            O fluxo de renovação ainda não está disponível: falta aplicar a atualização do banco de dados.
+          </p>
+        )}
+
+        <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-5">
+          {CARDS.map((s) => (
             <button key={s} onClick={() => setFiltro(filtro === s ? "todos" : s)}
               className={`rounded-lg border bg-card p-5 text-left transition hover:shadow-md ${filtro === s ? "ring-2 ring-ring" : ""}`}>
               <span className={`inline-block rounded px-2 py-0.5 text-xs font-semibold ${STATUS_CLASS[s]}`}>{STATUS_LABEL[s]}</span>
@@ -102,28 +141,73 @@ function Painel() {
           ))}
         </div>
 
-        {proximos.length > 0 && (
-          <section className="mt-8 rounded-lg border border-warn/40 bg-warn-soft p-5">
-            <h2 className="font-semibold">Precisa de atenção</h2>
-            <ul className="mt-3 space-y-2 text-sm">
-              {proximos.map((d) => {
-                const dias = diasAte(parseDate(d.vencimento));
-                return (
-                  <li key={d.id}>
-                    <button onClick={() => setAberto(d)} className="flex w-full justify-between gap-4 text-left hover:underline">
-                      <span>{d.nome}</span>
-                      <span className={dias! < 0 ? "font-semibold text-late" : "text-warn"}>
-                        {dias! < 0 ? `vencido há ${-dias!} dias` : `vence em ${dias} dias`}
-                      </span>
-                    </button>
-                  </li>
-                );
-              })}
-            </ul>
+        <div className="mt-8 grid gap-4 lg:grid-cols-3">
+          <section className="rounded-lg border bg-card p-5 lg:col-span-2">
+            <h2 className="font-semibold">Alertas de vencimento</h2>
+            <p className="text-xs text-muted-foreground">Faixas de 90, 60, 30, 15 e 7 dias. Documentos em renovação não aparecem aqui.</p>
+            {alertas.length === 0 ? (
+              <p className="mt-4 text-sm text-muted-foreground">Nada vencendo nos próximos 90 dias.</p>
+            ) : (
+              <div className="mt-4 space-y-4">
+                {alertas.map(([faixa, itens]) => (
+                  <div key={faixa}>
+                    <p className={`mb-1 text-xs font-semibold uppercase tracking-[0.15em] ${
+                      faixa === "vencido" ? "text-late" : faixa === 7 || faixa === 15 ? "text-warn" : "text-muted-foreground"}`}>
+                      {FAIXA_LABEL(faixa)} · {itens.length}
+                    </p>
+                    <ul className="space-y-1 text-sm">
+                      {itens.map(({ doc, dias }) => (
+                        <li key={doc.id}>
+                          <button onClick={() => setAberto(doc)} className="flex w-full justify-between gap-4 text-left hover:underline">
+                            <span>{doc.nome}</span>
+                            <span className={dias < 0 ? "whitespace-nowrap font-semibold text-late" : "whitespace-nowrap text-muted-foreground"}>
+                              {dias < 0 ? `vencido há ${-dias} dias` : dias === 0 ? "vence hoje" : `vence em ${dias} dias`}
+                            </span>
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ))}
+              </div>
+            )}
           </section>
-        )}
 
-        <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <section className="space-y-4">
+            {abertas.size > 0 && (
+              <div className="rounded-lg border bg-card p-5">
+                <h2 className="font-semibold">Em renovação</h2>
+                <ul className="mt-3 space-y-1 text-sm">
+                  {docs.filter((d) => abertas.has(d.id)).map((d) => (
+                    <li key={d.id}>
+                      <button onClick={() => setAberto(d)} className="flex w-full justify-between gap-4 text-left hover:underline">
+                        <span>{d.nome}</span>
+                        <span className="whitespace-nowrap text-primary">{etapaLabel(abertas.get(d.id)!.etapa)}</span>
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            <div className="rounded-lg border bg-card p-5">
+              <h2 className="font-semibold">Custos de regularização</h2>
+              {custos.length === 0 ? (
+                <p className="mt-2 text-sm text-muted-foreground">Os custos aparecem aqui quando renovações forem concluídas.</p>
+              ) : (
+                <ul className="mt-3 space-y-1 text-sm">
+                  {custos.map((c) => (
+                    <li key={c.ano} className="flex justify-between">
+                      <span>{c.ano} <span className="text-muted-foreground">· {c.qtd} {c.qtd === 1 ? "renovação" : "renovações"}</span></span>
+                      <span className="font-medium">{brl(c.total)}</span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          </section>
+        </div>
+
+        <div className="mt-8 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
           <div className="flex flex-wrap gap-2">
             {FILTROS.map((f) => (
               <button key={f} onClick={() => setFiltro(f)}
@@ -132,9 +216,12 @@ function Painel() {
               </button>
             ))}
           </div>
-          <div className="relative sm:w-72">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input className="pl-9" placeholder="Buscar documento ou órgão" value={busca} onChange={(e) => setBusca(e.target.value)} />
+          <div className="flex gap-2">
+            <div className="relative flex-1 lg:w-72">
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <Input className="pl-9" placeholder="Buscar documento, órgão, nº ou responsável" value={busca} onChange={(e) => setBusca(e.target.value)} />
+            </div>
+            <Button onClick={() => setNovo(true)}><Plus className="h-4 w-4" /> Novo</Button>
           </div>
         </div>
 
@@ -146,6 +233,7 @@ function Painel() {
                 <thead className="bg-muted text-left text-xs uppercase text-muted-foreground">
                   <tr>
                     <th className="px-4 py-2">Documento</th>
+                    <th className="hidden px-4 py-2 lg:table-cell">Responsável</th>
                     <th className="hidden px-4 py-2 md:table-cell">Vencimento</th>
                     <th className="hidden px-4 py-2 md:table-cell">Renovar em</th>
                     <th className="px-4 py-2">Status</th>
@@ -153,13 +241,14 @@ function Painel() {
                 </thead>
                 <tbody>
                   {lista.map((d) => {
-                    const s = statusDe(d);
+                    const s = status(d);
                     return (
                       <tr key={d.id} onClick={() => setAberto(d)} className="cursor-pointer border-t hover:bg-muted/50">
                         <td className="px-4 py-3">
                           <div className="flex items-center gap-2 font-medium">{d.nome}{d.arquivo_path && <Paperclip className="h-3.5 w-3.5 text-muted-foreground" />}</div>
-                          <div className="text-xs text-muted-foreground">{d.orgao}</div>
+                          <div className="text-xs text-muted-foreground">{d.orgao}{d.numero && ` · nº ${d.numero}`}</div>
                         </td>
+                        <td className="hidden px-4 py-3 lg:table-cell">{d.responsavel ?? "—"}</td>
                         <td className="hidden px-4 py-3 md:table-cell">{fmt(parseDate(d.vencimento))}</td>
                         <td className="hidden px-4 py-3 md:table-cell">{fmt(renovarEm(d))}</td>
                         <td className="px-4 py-3"><span className={`whitespace-nowrap rounded px-2 py-0.5 text-xs font-semibold ${STATUS_CLASS[s]}`}>{STATUS_LABEL[s]}</span></td>
@@ -173,98 +262,17 @@ function Painel() {
         ))}
       </main>
 
-      <Sheet open={!!aberto} onOpenChange={(o) => !o && setAberto(null)}>
+      <Sheet open={!!aberto || novo} onOpenChange={(o) => { if (!o) { setAberto(null); setNovo(false); } }}>
         <SheetContent className="w-full overflow-y-auto sm:max-w-lg">
-          {aberto && <Editor key={aberto.id} doc={aberto} onSaved={() => { setAberto(null); qc.invalidateQueries({ queryKey: ["documentos"] }); }} />}
+          {aberto && (
+            <Editor key={aberto.id} doc={aberto} onSaved={fechar}
+              renovacoes={renovacoes && renovacoes.filter((r) => r.documento_id === aberto.id)} />
+          )}
+          {novo && !aberto && (
+            <NovoDocumento categorias={categorias} proximaOrdem={Math.max(0, ...docs.map((d) => d.ordem)) + 1} onSaved={fechar} />
+          )}
         </SheetContent>
       </Sheet>
-    </div>
-  );
-}
-
-function Editor({ doc, onSaved }: { doc: Documento; onSaved: () => void }) {
-  const [emissao, setEmissao] = useState(doc.emissao ?? "");
-  const [vencimento, setVencimento] = useState(doc.vencimento ?? "");
-  const [antec, setAntec] = useState(doc.antecedencia_dias?.toString() ?? "");
-  const [obs, setObs] = useState(doc.observacoes ?? "");
-  const [arquivo, setArquivo] = useState<File | null>(null);
-  const [salvando, setSalvando] = useState(false);
-  const semPrazo = doc.tipo_prazo === "Sem vencimento" || doc.tipo_prazo === "Rotina contínua";
-
-  async function salvar() {
-    setSalvando(true);
-    try {
-      let arquivo_path = doc.arquivo_path;
-      let arquivo_nome = doc.arquivo_nome;
-      if (arquivo) {
-        const path = `${doc.id}/${Date.now()}-${arquivo.name.replace(/[^\w.\-]/g, "_")}`;
-        const { error } = await supabase.storage.from("documentos").upload(path, arquivo);
-        if (error) throw error;
-        if (doc.arquivo_path) await supabase.storage.from("documentos").remove([doc.arquivo_path]);
-        arquivo_path = path;
-        arquivo_nome = arquivo.name;
-      }
-      const { error } = await supabase.from("documentos").update({
-        emissao: emissao || null,
-        vencimento: vencimento || null,
-        antecedencia_dias: antec === "" ? null : Number(antec),
-        observacoes: obs || null,
-        arquivo_path, arquivo_nome,
-      }).eq("id", doc.id);
-      if (error) throw error;
-      toast.success("Documento atualizado");
-      onSaved();
-    } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Erro ao salvar");
-    } finally {
-      setSalvando(false);
-    }
-  }
-
-  async function baixar() {
-    if (!doc.arquivo_path) return;
-    const { data, error } = await supabase.storage.from("documentos").createSignedUrl(doc.arquivo_path, 120);
-    if (error) { toast.error(error.message); return; }
-    window.open(data.signedUrl, "_blank");
-  }
-
-  return (
-    <div className="space-y-5 pb-8">
-      <SheetHeader className="p-0">
-        <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">{doc.categoria}</p>
-        <SheetTitle className="text-left font-display text-xl">{doc.nome}</SheetTitle>
-      </SheetHeader>
-      <dl className="grid grid-cols-2 gap-3 rounded-md bg-muted p-4 text-sm">
-        <div><dt className="text-xs text-muted-foreground">Órgão</dt><dd>{doc.orgao}</dd></div>
-        <div><dt className="text-xs text-muted-foreground">Base legal</dt><dd>{doc.base_legal}</dd></div>
-        <div><dt className="text-xs text-muted-foreground">Tipo de prazo</dt><dd>{doc.tipo_prazo}</dd></div>
-        <div className="col-span-2"><dt className="text-xs text-muted-foreground">Validade típica</dt><dd>{doc.validade_tipica}</dd></div>
-      </dl>
-
-      {!semPrazo && (
-        <div className="grid grid-cols-2 gap-3">
-          <div className="space-y-1.5"><Label>Emissão</Label><Input type="date" value={emissao} onChange={(e) => setEmissao(e.target.value)} /></div>
-          <div className="space-y-1.5"><Label>Vencimento</Label><Input type="date" value={vencimento} onChange={(e) => setVencimento(e.target.value)} /></div>
-          <div className="col-span-2 space-y-1.5">
-            <Label>Antecedência para renovar (dias)</Label>
-            <Input type="number" min={0} value={antec} onChange={(e) => setAntec(e.target.value)} />
-            <p className="text-xs text-muted-foreground">Renovar em: <strong>{fmt(renovarEm({ ...doc, vencimento: vencimento || null, antecedencia_dias: antec === "" ? null : Number(antec) }))}</strong></p>
-          </div>
-        </div>
-      )}
-
-      <div className="space-y-1.5">
-        <Label>Arquivo do documento</Label>
-        {doc.arquivo_path && (
-          <button onClick={baixar} className="flex w-full items-center gap-2 rounded-md border p-3 text-left text-sm hover:bg-muted">
-            <Download className="h-4 w-4" /> {doc.arquivo_nome}
-          </button>
-        )}
-        <Input type="file" accept=".pdf,image/*" onChange={(e) => setArquivo(e.target.files?.[0] ?? null)} />
-      </div>
-
-      <div className="space-y-1.5"><Label>Observações</Label><Textarea rows={3} value={obs} onChange={(e) => setObs(e.target.value)} /></div>
-      <Button className="w-full" onClick={salvar} disabled={salvando}>{salvando ? "Salvando…" : "Salvar"}</Button>
     </div>
   );
 }
