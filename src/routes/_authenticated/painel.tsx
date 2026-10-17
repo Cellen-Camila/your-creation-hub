@@ -1,14 +1,14 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useMemo, useState } from "react";
-import { LogOut, Paperclip, Plus, Search } from "lucide-react";
+import { Paperclip, Plus, Search } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { AppHeader } from "@/components/AppHeader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { Editor } from "@/components/documentos/Editor";
 import { NovoDocumento } from "@/components/documentos/NovoDocumento";
-import logoAsset from "@/assets/logo-posto-natal.jpg.asset.json";
 import {
   type Documento, type Renovacao, type Status, statusDe, renovarEm, parseDate, diasAte, fmt, brl,
   faixaAlerta, FAIXAS_ALERTA, custosPorAno, etapaLabel, STATUS_LABEL, STATUS_CLASS,
@@ -36,7 +36,6 @@ const FAIXA_LABEL = (f: NonNullable<Faixa> | "aberto") =>
   f === "vencido" ? "Vencidos" : f === "aberto" ? "Prazo de renovação aberto" : `Até ${f} dias`;
 
 function Painel() {
-  const navigate = useNavigate();
   const qc = useQueryClient();
   const { user } = Route.useRouteContext();
   const [filtro, setFiltro] = useState<Status | "todos">("todos");
@@ -100,29 +99,9 @@ function Painel() {
   const categorias = useMemo(() => [...new Set(docs.map((d) => d.categoria))], [docs]);
   const fechar = () => { setAberto(null); setNovo(false); qc.invalidateQueries({ queryKey: ["documentos"] }); };
 
-  async function sair() {
-    await qc.cancelQueries();
-    qc.clear();
-    await supabase.auth.signOut();
-    navigate({ to: "/auth", replace: true });
-  }
-
   return (
     <div className="min-h-screen bg-background">
-      <header className="bg-ink text-ink-foreground">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
-          <div className="flex items-center gap-3">
-            <span className="rounded-sm bg-card px-2 py-1">
-              <img src={logoAsset.url} alt="Posto Natal" className="h-9 w-auto object-contain" />
-            </span>
-            <span className="hidden font-display font-semibold sm:inline">Documentos</span>
-          </div>
-          <div className="flex items-center gap-4 text-sm">
-            <span className="hidden text-ink-foreground/70 sm:inline">{user.email}</span>
-            <button onClick={sair} className="flex items-center gap-1 hover:text-accent"><LogOut className="h-4 w-4" /> Sair</button>
-          </div>
-        </div>
-      </header>
+      <AppHeader email={user.email} />
 
       <main className="mx-auto max-w-7xl px-6 py-8">
         {renovacoes === null && !isLoading && (
