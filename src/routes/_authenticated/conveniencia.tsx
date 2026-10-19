@@ -1,5 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { CheckCircle2, ClipboardList, History, type LucideIcon } from "lucide-react";
+import { CheckCircle2, History, type LucideIcon } from "lucide-react";
+import { FormChecklist } from "@/components/conveniencia/FormChecklist";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
@@ -54,7 +55,7 @@ function Conveniencia() {
           <TabsTrigger value="historico">Histórico</TabsTrigger>
         </TabsList>
         <TabsContent value="checklist" className="mt-4">
-          <Vazio icone={ClipboardList} texto="O formulário do checklist chega na próxima etapa." />
+          <FormChecklist />
         </TabsContent>
         <TabsContent value="pendencias" className="mt-4">
           <Vazio icone={CheckCircle2} texto="Nenhuma pendência aberta" />
