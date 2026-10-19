@@ -213,6 +213,32 @@ describe("banco do checklist da conveniência", () => {
     ).rejects.toThrow();
   });
 
+  it("não deixa falsificar a autoria (enviado_por e resolvido_por presos ao login)", async () => {
+    await enviar(montarPayload(TRES_CODIGOS));
+    const perguntas = PERGUNTAS.map((q) => q.chave);
+    const cols = ["data", "funcionaria", "enviado_por", ...perguntas].join(", ");
+    const vals = ["'2026-01-15'", "'Maria'", `'${OUTRO}'`, ...perguntas.map(() => "true")].join(
+      ", ",
+    );
+    await expect(
+      comoUsuario(() => db.query(`INSERT INTO public.checklists (${cols}) VALUES (${vals})`)),
+    ).rejects.toThrow(/row-level security/i);
+    await expect(
+      comoUsuario(() =>
+        db.query(
+          `UPDATE public.checklist_codigos SET resolvido_em = now(), resolvido_por = '${OUTRO}'`,
+        ),
+      ),
+    ).rejects.toThrow(/row-level security/i);
+    await expect(
+      comoUsuario(() =>
+        db.query(
+          `UPDATE public.checklists SET a_fazer_resolvido_em = now(), a_fazer_resolvido_por = '${OUTRO}'`,
+        ),
+      ),
+    ).rejects.toThrow(/row-level security/i);
+  });
+
   it("anon não lê nenhuma tabela nem executa a função", async () => {
     for (const t of ["checklists", "checklist_fotos", "checklist_codigos"]) {
       await expect(comoAnon(() => db.query(`SELECT * FROM public.${t}`))).rejects.toThrow(

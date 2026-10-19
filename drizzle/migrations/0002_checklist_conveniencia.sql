@@ -138,13 +138,16 @@ GRANT UPDATE (a_fazer_resolvido_em, a_fazer_resolvido_por) ON public.checklists 
 GRANT ALL ON public.checklists, public.checklist_fotos, public.checklist_codigos TO service_role;
 
 CREATE POLICY "Equipe lê" ON public.checklists FOR SELECT TO authenticated USING (true);
-CREATE POLICY "Equipe cria" ON public.checklists FOR INSERT TO authenticated WITH CHECK (true);
-CREATE POLICY "Equipe dá baixa" ON public.checklists FOR UPDATE TO authenticated USING (true) WITH CHECK (true);
+-- Autoria presa ao login: ninguém grava enviado_por nem a baixa em nome de outra pessoa.
+CREATE POLICY "Equipe cria" ON public.checklists FOR INSERT TO authenticated WITH CHECK (enviado_por = auth.uid());
+CREATE POLICY "Equipe dá baixa" ON public.checklists FOR UPDATE TO authenticated USING (true)
+  WITH CHECK (a_fazer_resolvido_por IS NULL OR a_fazer_resolvido_por = auth.uid());
 CREATE POLICY "Equipe lê" ON public.checklist_fotos FOR SELECT TO authenticated USING (true);
 CREATE POLICY "Equipe cria" ON public.checklist_fotos FOR INSERT TO authenticated WITH CHECK (true);
 CREATE POLICY "Equipe lê" ON public.checklist_codigos FOR SELECT TO authenticated USING (true);
 CREATE POLICY "Equipe cria" ON public.checklist_codigos FOR INSERT TO authenticated WITH CHECK (true);
-CREATE POLICY "Equipe dá baixa" ON public.checklist_codigos FOR UPDATE TO authenticated USING (true) WITH CHECK (true);
+CREATE POLICY "Equipe dá baixa" ON public.checklist_codigos FOR UPDATE TO authenticated USING (true)
+  WITH CHECK (resolvido_por IS NULL OR resolvido_por = auth.uid());
 
 REVOKE EXECUTE ON FUNCTION public.enviar_checklist(jsonb) FROM PUBLIC, anon;
 GRANT EXECUTE ON FUNCTION public.enviar_checklist(jsonb) TO authenticated;
