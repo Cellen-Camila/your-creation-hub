@@ -220,7 +220,7 @@ export type Pendencias = {
 };
 
 /** Mais recente primeiro: data do checklist, depois hora do envio. */
-const maisRecente = (
+export const maisRecente = (
   a: { data: string; created_at: string },
   b: { data: string; created_at: string },
 ) => b.data.localeCompare(a.data) || b.created_at.localeCompare(a.created_at);

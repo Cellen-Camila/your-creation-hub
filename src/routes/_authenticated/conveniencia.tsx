@@ -1,8 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { History } from "lucide-react";
 import { FormChecklist } from "@/components/conveniencia/FormChecklist";
 import { Pendencias } from "@/components/conveniencia/Pendencias";
-import { Vazio } from "@/components/conveniencia/Estados";
+import { Historico } from "@/components/conveniencia/Historico";
 import { useTotalAbertos } from "@/lib/conveniencia";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -61,7 +60,7 @@ function Conveniencia() {
           <Pendencias />
         </TabsContent>
         <TabsContent value="historico" className="mt-4">
-          <Vazio icone={History} texto="Nenhum checklist enviado ainda" />
+          <Historico />
         </TabsContent>
       </Tabs>
     </>
