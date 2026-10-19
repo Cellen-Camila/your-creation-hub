@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AuthenticatedConvenienciaRouteImport } from './routes/_authenticated/conveniencia'
 import { Route as AuthenticatedInicioRouteImport } from './routes/_authenticated/inicio'
 import { Route as AuthenticatedPainelRouteImport } from './routes/_authenticated/painel'
 import { Route as AuthenticatedModulosIndexRouteImport } from './routes/_authenticated/modulos/index'
@@ -31,6 +32,12 @@ const AuthRoute = AuthRouteImport.update({
   path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedConvenienciaRoute =
+  AuthenticatedConvenienciaRouteImport.update({
+    id: '/conveniencia',
+    path: '/conveniencia',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedInicioRoute = AuthenticatedInicioRouteImport.update({
   id: '/inicio',
   path: '/inicio',
@@ -57,6 +64,7 @@ const AuthenticatedModulosModuloRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/conveniencia': typeof AuthenticatedConvenienciaRoute
   '/inicio': typeof AuthenticatedInicioRoute
   '/painel': typeof AuthenticatedPainelRoute
   '/modulos/$modulo': typeof AuthenticatedModulosModuloRoute
@@ -65,6 +73,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/conveniencia': typeof AuthenticatedConvenienciaRoute
   '/inicio': typeof AuthenticatedInicioRoute
   '/painel': typeof AuthenticatedPainelRoute
   '/modulos/$modulo': typeof AuthenticatedModulosModuloRoute
@@ -75,6 +84,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
+  '/_authenticated/conveniencia': typeof AuthenticatedConvenienciaRoute
   '/_authenticated/inicio': typeof AuthenticatedInicioRoute
   '/_authenticated/painel': typeof AuthenticatedPainelRoute
   '/_authenticated/modulos/$modulo': typeof AuthenticatedModulosModuloRoute
@@ -83,14 +93,28 @@ export interface FileRoutesById {
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    '/' | '/auth' | '/inicio' | '/painel' | '/modulos/$modulo' | '/modulos/'
+    | '/'
+    | '/auth'
+    | '/conveniencia'
+    | '/inicio'
+    | '/painel'
+    | '/modulos/$modulo'
+    | '/modulos/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/inicio' | '/painel' | '/modulos/$modulo' | '/modulos'
+  to:
+    | '/'
+    | '/auth'
+    | '/conveniencia'
+    | '/inicio'
+    | '/painel'
+    | '/modulos/$modulo'
+    | '/modulos'
   id:
     | '__root__'
     | '/'
     | '/_authenticated'
     | '/auth'
+    | '/_authenticated/conveniencia'
     | '/_authenticated/inicio'
     | '/_authenticated/painel'
     | '/_authenticated/modulos/$modulo'
@@ -126,6 +150,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/conveniencia': {
+      id: '/_authenticated/conveniencia'
+      path: '/conveniencia'
+      fullPath: '/conveniencia'
+      preLoaderRoute: typeof AuthenticatedConvenienciaRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/inicio': {
       id: '/_authenticated/inicio'
       path: '/inicio'
@@ -158,6 +189,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedConvenienciaRoute: typeof AuthenticatedConvenienciaRoute
   AuthenticatedInicioRoute: typeof AuthenticatedInicioRoute
   AuthenticatedPainelRoute: typeof AuthenticatedPainelRoute
   AuthenticatedModulosModuloRoute: typeof AuthenticatedModulosModuloRoute
@@ -165,6 +197,7 @@ interface AuthenticatedRouteRouteChildren {
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedConvenienciaRoute: AuthenticatedConvenienciaRoute,
   AuthenticatedInicioRoute: AuthenticatedInicioRoute,
   AuthenticatedPainelRoute: AuthenticatedPainelRoute,
   AuthenticatedModulosModuloRoute: AuthenticatedModulosModuloRoute,

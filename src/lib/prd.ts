@@ -9,7 +9,7 @@ export type Modulo = {
   nome: string;
   escopo: string;
   fase: 1 | 2 | 3 | null;
-  rota?: "/painel";
+  rota?: "/painel" | "/conveniencia";
   kpis: string[];
   requisitos: Requisito[];
 };
@@ -154,7 +154,7 @@ export const MODULOS: Modulo[] = [
     ],
   },
   {
-    slug: "conveniencia", nome: "Conveniência", fase: 2,
+    slug: "conveniencia", nome: "Conveniência", fase: 2, rota: "/conveniencia",
     escopo: "Entrada de notas, precificação, margem, avarias e perdas, curva ABC.",
     kpis: ["Faturamento", "Margem", "Ticket médio", "Perdas por avaria/validade (% das vendas)"],
     requisitos: [

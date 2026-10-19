@@ -7,7 +7,7 @@ export type NavItem = {
   label: string;
   icon: LucideIcon;
   /** Rota própria (módulo já construído) ou slug da página do módulo no plano. */
-  destino: { to: "/inicio" | "/painel" | "/modulos" } | { modulo: string };
+  destino: { to: "/inicio" | "/painel" | "/modulos" | "/conveniencia" } | { modulo: string };
 };
 
 export const NAV: { grupo: string; itens: NavItem[] }[] = [
@@ -37,7 +37,7 @@ export const NAV: { grupo: string; itens: NavItem[] }[] = [
   {
     grupo: "Loja e suprimentos",
     itens: [
-      { label: "Conveniência", icon: ShoppingBag, destino: { modulo: "conveniencia" } },
+      { label: "Conveniência", icon: ShoppingBag, destino: { to: "/conveniencia" } },
       { label: "Estoques", icon: Boxes, destino: { modulo: "estoques" } },
       { label: "Pedidos e compras", icon: ShoppingCart, destino: { modulo: "pedidos" } },
     ],

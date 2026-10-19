@@ -5,8 +5,9 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  --font-sans: "DM Sans", ui-sans-serif, system-ui, sans-serif;
-  --font-display: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -36,6 +37,8 @@
   --color-warn-soft: var(--warn-soft);
   --color-late: var(--late);
   --color-late-soft: var(--late-soft);
+  --color-info: var(--info);
+  --color-info-soft: var(--info-soft);
   --color-ink: var(--ink);
   --color-ink-foreground: var(--ink-foreground);
   --color-sidebar: var(--sidebar);
@@ -75,6 +78,8 @@
   --warn-soft: oklch(0.94 0.07 80);
   --late: oklch(0.55 0.2 28);
   --late-soft: oklch(0.93 0.05 28);
+  --info: oklch(0.55 0.13 235);
+  --info-soft: oklch(0.93 0.04 235);
   --ink: oklch(0.25 0.075 255);
   --ink-foreground: oklch(0.98 0.005 245);
   --sidebar: oklch(0.23 0.07 255);
@@ -85,6 +90,48 @@
   --sidebar-accent-foreground: oklch(0.99 0 0);
   --sidebar-border: oklch(0.32 0.06 255);
   --sidebar-ring: oklch(0.78 0.16 76);
+}
+
+/* Tema escuro: tokens de docs/sia/visual.md mapeados nas variaveis do shadcn. */
+.dark {
+  color-scheme: dark;
+  --background: #070B14;
+  --foreground: #F1F5F9;
+  --card: #0D1422;
+  --card-foreground: #F1F5F9;
+  --popover: #1A2539;
+  --popover-foreground: #F1F5F9;
+  --primary: #FF8A1F;
+  --primary-foreground: #1A0F03;
+  --secondary: #131C2E;
+  --secondary-foreground: #F1F5F9;
+  --muted: #131C2E;
+  --muted-foreground: #8391A7;
+  --accent: #131C2E;
+  --accent-foreground: #F1F5F9;
+  --destructive: #F87171;
+  --destructive-foreground: #070B14;
+  --border: rgba(148, 163, 184, 0.14);
+  --input: rgba(148, 163, 184, 0.14);
+  --ring: #FF8A1F;
+  --ok: #34D399;
+  --ok-soft: rgba(52, 211, 153, 0.12);
+  --warn: #FACC15;
+  --warn-soft: rgba(250, 204, 21, 0.12);
+  --late: #F87171;
+  --late-soft: rgba(248, 113, 113, 0.12);
+  --info: #38BDF8;
+  --info-soft: rgba(56, 189, 248, 0.12);
+  --ink: #1A2539;
+  --ink-foreground: #F1F5F9;
+  --sidebar: #0D1422;
+  --sidebar-foreground: #A3B1C6;
+  --sidebar-primary: #FF8A1F;
+  --sidebar-primary-foreground: #1A0F03;
+  --sidebar-accent: rgba(255, 138, 31, 0.12);
+  --sidebar-accent-foreground: #F1F5F9;
+  --sidebar-border: rgba(148, 163, 184, 0.08);
+  --sidebar-ring: #FF8A1F;
 }
 
 @layer base {

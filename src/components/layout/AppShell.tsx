@@ -1,7 +1,8 @@
 import type { ReactNode } from "react";
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
-import { ChevronsUpDown, LogOut } from "lucide-react";
+import { useState } from "react";
+import { ChevronsUpDown, LogOut, Moon, Sun } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import {
   Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarHeader,
@@ -13,6 +14,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Separator } from "@/components/ui/separator";
 import { MODULOS, progresso } from "@/lib/prd";
+import { aplicarTema, temaAtual, type Tema } from "@/lib/tema";
 import { Logo } from "./Logo";
 import { NAV, tituloDaRota, type NavItem } from "./nav";
 
@@ -47,7 +49,14 @@ export function AppShell({ email, children }: { email: string | undefined; child
   const navigate = useNavigate();
   const qc = useQueryClient();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const [tema, setTema] = useState<Tema>(() => (typeof document === "undefined" ? "claro" : temaAtual()));
   const hoje = new Date().toLocaleDateString("pt-BR", { weekday: "long", day: "numeric", month: "long" });
+
+  function alternarTema() {
+    const novo: Tema = temaAtual() === "escuro" ? "claro" : "escuro";
+    aplicarTema(novo);
+    setTema(novo);
+  }
 
   async function sair() {
     await qc.cancelQueries();
@@ -91,6 +100,10 @@ export function AppShell({ email, children }: { email: string | undefined; child
                 <DropdownMenuContent side="top" align="start" className="w-56">
                   <DropdownMenuLabel className="truncate font-normal text-muted-foreground">{email}</DropdownMenuLabel>
                   <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={alternarTema}>
+                    {tema === "escuro" ? <Sun className="mr-2 h-4 w-4" /> : <Moon className="mr-2 h-4 w-4" />}
+                    {tema === "escuro" ? "Tema claro" : "Tema escuro"}
+                  </DropdownMenuItem>
                   <DropdownMenuItem onClick={sair}><LogOut className="mr-2 h-4 w-4" /> Sair</DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
