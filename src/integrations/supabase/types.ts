@@ -14,6 +14,187 @@ export type Database = {
   }
   public: {
     Tables: {
+      checklist_codigos: {
+        Row: {
+          ajuste: string | null
+          checklist_id: string
+          codigo: string
+          created_at: string
+          id: string
+          providencia: string
+          quantidade: number
+          resolvido_em: string | null
+          resolvido_por: string | null
+        }
+        Insert: {
+          ajuste?: string | null
+          checklist_id: string
+          codigo: string
+          created_at?: string
+          id?: string
+          providencia: string
+          quantidade?: number
+          resolvido_em?: string | null
+          resolvido_por?: string | null
+        }
+        Update: {
+          ajuste?: string | null
+          checklist_id?: string
+          codigo?: string
+          created_at?: string
+          id?: string
+          providencia?: string
+          quantidade?: number
+          resolvido_em?: string | null
+          resolvido_por?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "checklist_codigos_checklist_id_fkey"
+            columns: ["checklist_id"]
+            isOneToOne: false
+            referencedRelation: "checklists"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      checklist_fotos: {
+        Row: {
+          checklist_id: string
+          created_at: string
+          id: string
+          nome: string | null
+          path: string
+        }
+        Insert: {
+          checklist_id: string
+          created_at?: string
+          id?: string
+          nome?: string | null
+          path: string
+        }
+        Update: {
+          checklist_id?: string
+          created_at?: string
+          id?: string
+          nome?: string | null
+          path?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "checklist_fotos_checklist_id_fkey"
+            columns: ["checklist_id"]
+            isOneToOne: false
+            referencedRelation: "checklists"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      checklists: {
+        Row: {
+          a_fazer: string | null
+          a_fazer_resolvido_em: string | null
+          a_fazer_resolvido_por: string | null
+          avariados_vencidos: string | null
+          contagens: string | null
+          created_at: string
+          data: string
+          enviado_por: string
+          freezers_organizados: boolean
+          freezers_organizados_obs: string | null
+          funcionaria: string
+          id: string
+          lixo_retirado: boolean
+          lixo_retirado_obs: string | null
+          loja_limpa: boolean
+          loja_limpa_obs: string | null
+          loja_organizada: boolean
+          loja_organizada_obs: string | null
+          material_abastecido: boolean
+          material_abastecido_obs: string | null
+          mercadoria_abastecida: boolean
+          mercadoria_abastecida_obs: string | null
+          mercadoria_recebida: string | null
+          mercadorias_trocadas: string | null
+          notas_bonificacao: boolean
+          notas_bonificacao_obs: string | null
+          outras_informacoes: string | null
+          pedidos_fornecedor: string | null
+          produto_sem_cadastro: boolean
+          produto_sem_cadastro_obs: string | null
+          transferencias_realizadas: boolean
+          transferencias_realizadas_obs: string | null
+        }
+        Insert: {
+          a_fazer?: string | null
+          a_fazer_resolvido_em?: string | null
+          a_fazer_resolvido_por?: string | null
+          avariados_vencidos?: string | null
+          contagens?: string | null
+          created_at?: string
+          data: string
+          enviado_por?: string
+          freezers_organizados: boolean
+          freezers_organizados_obs?: string | null
+          funcionaria: string
+          id?: string
+          lixo_retirado: boolean
+          lixo_retirado_obs?: string | null
+          loja_limpa: boolean
+          loja_limpa_obs?: string | null
+          loja_organizada: boolean
+          loja_organizada_obs?: string | null
+          material_abastecido: boolean
+          material_abastecido_obs?: string | null
+          mercadoria_abastecida: boolean
+          mercadoria_abastecida_obs?: string | null
+          mercadoria_recebida?: string | null
+          mercadorias_trocadas?: string | null
+          notas_bonificacao: boolean
+          notas_bonificacao_obs?: string | null
+          outras_informacoes?: string | null
+          pedidos_fornecedor?: string | null
+          produto_sem_cadastro: boolean
+          produto_sem_cadastro_obs?: string | null
+          transferencias_realizadas: boolean
+          transferencias_realizadas_obs?: string | null
+        }
+        Update: {
+          a_fazer?: string | null
+          a_fazer_resolvido_em?: string | null
+          a_fazer_resolvido_por?: string | null
+          avariados_vencidos?: string | null
+          contagens?: string | null
+          created_at?: string
+          data?: string
+          enviado_por?: string
+          freezers_organizados?: boolean
+          freezers_organizados_obs?: string | null
+          funcionaria?: string
+          id?: string
+          lixo_retirado?: boolean
+          lixo_retirado_obs?: string | null
+          loja_limpa?: boolean
+          loja_limpa_obs?: string | null
+          loja_organizada?: boolean
+          loja_organizada_obs?: string | null
+          material_abastecido?: boolean
+          material_abastecido_obs?: string | null
+          mercadoria_abastecida?: boolean
+          mercadoria_abastecida_obs?: string | null
+          mercadoria_recebida?: string | null
+          mercadorias_trocadas?: string | null
+          notas_bonificacao?: boolean
+          notas_bonificacao_obs?: string | null
+          outras_informacoes?: string | null
+          pedidos_fornecedor?: string | null
+          produto_sem_cadastro?: boolean
+          produto_sem_cadastro_obs?: string | null
+          transferencias_realizadas?: boolean
+          transferencias_realizadas_obs?: string | null
+        }
+        Relationships: []
+      }
       documentos: {
         Row: {
           antecedencia_dias: number | null
@@ -176,6 +357,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      enviar_checklist: {
+        Args: { p: Json }
+        Returns: string
+      }
       concluir_renovacao: {
         Args: {
           p_custo: number | null
