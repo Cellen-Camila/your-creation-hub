@@ -1,0 +1,669 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Posto Natal — Prévia da cara do sistema</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&family=Plus+Jakarta+Sans:wght@600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg-base:#070B14;
+  --surface-1:#0D1422;
+  --surface-2:#131C2E;
+  --surface-3:#1A2539;
+  --glass:rgba(19,28,46,.72);
+  --border-subtle:rgba(148,163,184,.08);
+  --border-default:rgba(148,163,184,.14);
+  --border-strong:rgba(148,163,184,.24);
+  --highlight-top:inset 0 1px 0 rgba(255,255,255,.04);
+  --text-primary:#F1F5F9;
+  --text-secondary:#A3B1C6;
+  --text-muted:#8391A7;
+  --text-disabled:#4B5A70;
+  --brand:#FF8A1F;
+  --brand-hover:#FFA04A;
+  --brand-pressed:#E6760F;
+  --brand-ink:#1A0F03;
+  --brand-soft:rgba(255,138,31,.12);
+  --brand-glow:0 0 0 1px rgba(255,138,31,.45), 0 8px 24px -6px rgba(255,138,31,.45);
+  --data:#22D3EE;
+  --navy:#1E3A8A;
+  --success:#34D399; --success-soft:rgba(52,211,153,.12);
+  --warning:#FACC15; --warning-soft:rgba(250,204,21,.12);
+  --error:#F87171;   --error-soft:rgba(248,113,113,.12);
+  --info:#38BDF8;    --info-soft:rgba(56,189,248,.12);
+  --chart-1:#22D3EE; --chart-2:#FF8A1F; --chart-3:#A78BFA; --chart-4:#34D399; --chart-5:#F472B6; --chart-6:#94A3B8;
+  --radius-badge:6px; --radius-control:10px; --radius-card:14px; --radius-modal:20px;
+  --shadow-card:var(--highlight-top), 0 8px 24px -12px rgba(0,0,0,.6);
+  --font-title:'Plus Jakarta Sans',system-ui,sans-serif;
+  --font-ui:'Inter',system-ui,sans-serif;
+  --font-mono:'JetBrains Mono',ui-monospace,monospace;
+  --sb-w:260px; --pad:20px; --ease:150ms ease;
+}
+*{box-sizing:border-box;margin:0}
+html{-webkit-text-size-adjust:100%}
+body{background:var(--bg-base);color:var(--text-primary);font:400 14px/22px var(--font-ui);overflow-x:hidden;min-height:100vh}
+h1,h2,h3,h4,p,ul{margin:0;padding:0}
+ul{list-style:none}
+button,input{font:inherit;color:inherit}
+svg.i{width:20px;height:20px;flex:none;fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round}
+svg.i.sm{width:16px;height:16px}
+:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.mono{font:500 13px/20px var(--font-mono)}
+.tab{font-variant-numeric:tabular-nums}
+
+/* ---------- Menu lateral ---------- */
+.sidebar{position:fixed;inset:0 auto 0 0;width:var(--sb-w);background:var(--surface-1);border-right:1px solid var(--border-default);display:flex;flex-direction:column;z-index:40;transition:transform 200ms ease,width 200ms ease}
+.logo{display:flex;align-items:center;gap:10px;height:64px;padding:0 20px;font:700 18px/24px var(--font-title);letter-spacing:-.01em;border-bottom:1px solid var(--border-subtle);white-space:nowrap}
+.logo svg{width:24px;height:24px;flex:none}
+.nav{flex:1;overflow-y:auto;padding:16px 12px 24px;display:flex;flex-direction:column;gap:20px}
+.group-label{font:600 11px/16px var(--font-ui);text-transform:uppercase;letter-spacing:.08em;color:var(--text-muted);padding:0 12px 8px}
+.nav a{position:relative;display:flex;align-items:center;gap:12px;height:40px;padding:0 12px;border-radius:var(--radius-control);color:var(--text-secondary);text-decoration:none;font:500 14px/22px var(--font-ui);transition:background var(--ease),color var(--ease);white-space:nowrap}
+.nav a:hover{background:var(--surface-2);color:var(--text-primary)}
+.nav a[aria-current="page"]{background:var(--brand-soft);color:var(--text-primary)}
+.nav a[aria-current="page"]::before{content:"";position:absolute;left:-12px;top:6px;bottom:6px;width:3px;border-radius:0 3px 3px 0;background:var(--brand)}
+.nav a[aria-current="page"] svg{color:var(--brand)}
+.nav .count{margin-left:auto;min-width:20px;height:20px;padding:0 6px;border-radius:var(--radius-badge);background:var(--brand-soft);color:var(--brand);font:600 12px/20px var(--font-ui);text-align:center}
+.scrim{display:none;position:fixed;inset:0;background:rgba(7,11,20,.6);z-index:35}
+.scrim.on{display:block}
+
+/* ---------- Moldura ---------- */
+.main{margin-left:var(--sb-w);min-width:0;max-width:100%;transition:margin 200ms ease}
+.topbar{position:sticky;top:0;z-index:30;height:64px;display:flex;align-items:center;gap:12px;padding:0 32px;background:var(--glass);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);border-bottom:1px solid var(--border-subtle)}
+.icon-btn{position:relative;width:40px;height:40px;display:inline-grid;place-items:center;border-radius:var(--radius-control);background:transparent;border:1px solid transparent;color:var(--text-secondary);cursor:pointer;transition:background var(--ease),border-color var(--ease),color var(--ease)}
+.icon-btn:hover{background:var(--surface-2);border-color:var(--border-strong);color:var(--text-primary)}
+.menu-btn{display:none}
+.search{flex:1;max-width:420px;position:relative}
+.search svg{position:absolute;left:12px;top:12px;color:var(--text-muted);pointer-events:none}
+.search input{width:100%;height:40px;padding:0 48px 0 40px;border-radius:var(--radius-control);background:var(--surface-2);border:1px solid var(--border-default);color:var(--text-primary);transition:border-color var(--ease)}
+.search input:hover{border-color:var(--border-strong)}
+.search input::placeholder{color:var(--text-muted)}
+.search kbd{position:absolute;right:10px;top:9px;font:500 12px/20px var(--font-mono);color:var(--text-muted);border:1px solid var(--border-default);border-radius:var(--radius-badge);padding:0 6px}
+.spacer{flex:1}
+.dot{position:absolute;top:9px;right:10px;width:8px;height:8px;border-radius:50%;background:var(--error);box-shadow:0 0 0 2px var(--surface-1)}
+.avatar{width:36px;height:36px;border-radius:50%;background:var(--surface-3);border:1px solid var(--border-strong);display:grid;place-items:center;font:600 13px/18px var(--font-ui);color:var(--text-primary);cursor:pointer}
+.content{padding:32px;max-width:1280px;width:100%;margin:0 auto;display:flex;flex-direction:column;gap:32px}
+section{min-width:0;display:flex;flex-direction:column;gap:16px;scroll-margin-top:80px}
+
+/* ---------- Cabeçalho ---------- */
+.page-header{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:16px}
+.eyebrow{font:600 11px/16px var(--font-ui);text-transform:uppercase;letter-spacing:.08em;color:var(--text-muted)}
+h1{font:700 28px/34px var(--font-title);letter-spacing:-.02em;margin-top:4px}
+h2{font:600 20px/28px var(--font-title);letter-spacing:-.01em}
+h3{font:600 16px/24px var(--font-ui)}
+.desc{color:var(--text-secondary);margin-top:4px;max-width:60ch}
+.actions{display:flex;gap:12px;flex-wrap:wrap}
+.sec-head p{color:var(--text-secondary)}
+
+/* ---------- Botões ---------- */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:40px;padding:0 16px;border-radius:var(--radius-control);border:1px solid transparent;font:500 14px/22px var(--font-ui);cursor:pointer;white-space:nowrap;transition:background var(--ease),border-color var(--ease),color var(--ease),box-shadow var(--ease),transform var(--ease);text-decoration:none}
+.btn:active:not(:disabled){transform:scale(.98)}
+.btn.sm{height:32px;padding:0 12px;font-size:13px;line-height:18px}
+.btn-primary{background:var(--brand);color:var(--brand-ink);font-weight:600;box-shadow:var(--brand-glow)}
+.btn-primary:hover,.btn-primary.is-hover{background:var(--brand-hover)}
+.btn-primary:active:not(:disabled){background:var(--brand-pressed)}
+.btn-secondary{background:var(--surface-2);border-color:var(--border-default);color:var(--text-primary)}
+.btn-secondary:hover,.btn-secondary.is-hover{background:var(--surface-3);border-color:var(--border-strong)}
+.btn-ghost{background:transparent;color:var(--text-secondary)}
+.btn-ghost:hover,.btn-ghost.is-hover{background:var(--surface-2);color:var(--text-primary)}
+.btn-danger{background:var(--error-soft);border-color:rgba(248,113,113,.3);color:var(--error)}
+.btn-danger:hover,.btn-danger.is-hover{background:rgba(248,113,113,.2);border-color:rgba(248,113,113,.5)}
+.btn.is-focus{outline:2px solid var(--brand);outline-offset:2px}
+.btn:disabled{opacity:.5;cursor:not-allowed;box-shadow:none}
+.btn-primary:disabled{box-shadow:none}
+.link{color:var(--brand);text-decoration:none;font-weight:500;background:none;border:0;cursor:pointer;padding:0}
+.link:hover{color:var(--brand-hover);text-decoration:underline}
+.spin{width:16px;height:16px;border-radius:50%;border:2px solid currentColor;border-right-color:transparent;animation:spin .7s linear infinite;flex:none}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ---------- Cards ---------- */
+.card{background:var(--surface-1);border:1px solid var(--border-default);border-radius:var(--radius-card);box-shadow:var(--shadow-card);padding:var(--pad);transition:background var(--ease),border-color var(--ease)}
+.card.hov:hover{background:var(--surface-2);border-color:var(--border-strong)}
+.card-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:16px}
+.card-head p{font:400 13px/18px var(--font-ui);color:var(--text-muted);margin-top:2px}
+.metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px}
+.metric .top{display:flex;justify-content:space-between;align-items:center}
+.metric .circle{width:36px;height:36px;border-radius:50%;display:grid;place-items:center}
+.metric .value{font:600 32px/36px var(--font-ui);letter-spacing:-.02em;font-variant-numeric:tabular-nums;margin:12px 0 8px}
+.metric .foot{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.metric .delta{font:500 13px/18px var(--font-ui);color:var(--text-muted)}
+.metric svg.spark{width:88px;height:32px;flex:none}
+.c-success{color:var(--success)} .c-warning{color:var(--warning)} .c-error{color:var(--error)} .c-info{color:var(--info)}
+.bg-success{background:var(--success-soft)} .bg-warning{background:var(--warning-soft)} .bg-error{background:var(--error-soft)} .bg-info{background:var(--info-soft)}
+
+/* ---------- Gráfico ---------- */
+.chart-box{position:relative;height:240px;padding:8px 0 28px 48px}
+.plot{position:relative;height:100%}
+.plot svg{position:absolute;inset:0;width:100%;height:100%;display:block}
+.plot svg line{vector-effect:non-scaling-stroke;stroke:rgba(148,163,184,.08)}
+.yl{position:absolute;left:-48px;width:40px;text-align:right;transform:translateY(-50%);font:400 12px/16px var(--font-ui);color:var(--text-muted);font-variant-numeric:tabular-nums}
+.xl{position:absolute;top:100%;margin-top:8px;width:16.667%;text-align:center;font:400 12px/16px var(--font-ui);color:var(--text-muted)}
+.tt-box{position:absolute;left:58.333%;bottom:calc(68% + 10px);transform:translateX(-50%);background:var(--surface-3);border:1px solid var(--border-default);border-radius:10px;padding:8px 12px;display:flex;flex-direction:column;white-space:nowrap;box-shadow:0 8px 24px -12px rgba(0,0,0,.6)}
+.tt-box span{font:400 13px/16px var(--font-ui);color:var(--text-muted)}
+.tt-box b{font:600 13px/16px var(--font-ui);color:var(--text-primary);font-variant-numeric:tabular-nums}
+.tt-box::after{content:"";position:absolute;left:50%;bottom:-5px;width:8px;height:8px;background:var(--surface-3);border-right:1px solid var(--border-default);border-bottom:1px solid var(--border-default);transform:translateX(-50%) rotate(45deg)}
+.legend{display:flex;gap:16px;font:400 12px/16px var(--font-ui);color:var(--text-muted);align-items:center}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;background:var(--chart-1);margin-right:6px}
+
+/* ---------- Tabela ---------- */
+.table-card{padding:0;overflow:hidden}
+.table-card .card-head{padding:20px 20px 0}
+.t-scroll{overflow-x:auto}
+table{width:100%;border-collapse:collapse;min-width:820px}
+th{text-align:left;font:600 11px/16px var(--font-ui);text-transform:uppercase;letter-spacing:.08em;color:var(--text-muted);padding:12px 20px;border-bottom:1px solid var(--border-default);white-space:nowrap}
+td{font:500 13px/18px var(--font-ui);padding:14px 20px;border-bottom:1px solid var(--border-subtle);color:var(--text-secondary);vertical-align:middle}
+td.doc{color:var(--text-primary)}
+tbody tr{transition:background var(--ease)}
+tbody tr:hover{background:var(--surface-2)}
+tbody tr:last-child td{border-bottom:0}
+td.code{font:500 13px/20px var(--font-mono);color:var(--text-secondary);white-space:nowrap}
+.badge{display:inline-flex;align-items:center;gap:6px;height:24px;padding:0 8px;border-radius:var(--radius-badge);font:500 13px/18px var(--font-ui);white-space:nowrap}
+.badge svg{width:14px;height:14px}
+
+/* ---------- Guia de componentes ---------- */
+.guide-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.span-all{grid-column:1/-1}
+.states{display:grid;grid-template-columns:96px repeat(5,minmax(0,1fr));gap:12px 12px;align-items:center;min-width:760px}
+.states .h{font:600 11px/16px var(--font-ui);text-transform:uppercase;letter-spacing:.08em;color:var(--text-muted)}
+.states .rl{font:500 13px/18px var(--font-ui);color:var(--text-secondary)}
+.field{display:flex;flex-direction:column;gap:6px}
+.field label{font:500 14px/22px var(--font-ui);color:var(--text-primary)}
+.field input{height:40px;padding:0 12px;border-radius:var(--radius-control);background:var(--surface-2);border:1px solid var(--border-default);color:var(--text-primary);font-size:14px;transition:border-color var(--ease)}
+.field input:hover{border-color:var(--border-strong)}
+.field input::placeholder{color:var(--text-muted)}
+.field .hint{font:400 13px/18px var(--font-ui);color:var(--text-muted)}
+.field.err input{border-color:var(--error)}
+.field .msg{display:flex;gap:6px;align-items:center;font:500 13px/18px var(--font-ui);color:var(--error)}
+.skeleton{background:linear-gradient(90deg,var(--surface-2) 0%,var(--surface-3) 50%,var(--surface-2) 100%);background-size:200% 100%;animation:shimmer 1.5s linear infinite;border-radius:var(--radius-badge)}
+@keyframes shimmer{from{background-position:200% 0}to{background-position:-200% 0}}
+.sk-card{display:flex;flex-direction:column;gap:12px}
+.sk-row{display:grid;grid-template-columns:2fr 1.2fr 1fr 1fr;gap:16px;padding:12px 0;border-bottom:1px solid var(--border-subtle)}
+.sk-row:last-child{border:0}
+.load-demo [data-pane="skeleton"]{display:none}
+.load-demo.loading [data-pane="skeleton"]{display:block}
+.load-demo.loading [data-pane="real"]{display:none}
+.mini-list li{display:flex;justify-content:space-between;gap:12px;padding:12px 0;border-bottom:1px solid var(--border-subtle);color:var(--text-secondary)}
+.mini-list li:last-child{border:0}
+.mini-list li b{color:var(--text-primary);font-weight:500}
+.empty{text-align:center;padding:24px 8px;display:flex;flex-direction:column;align-items:center;gap:12px}
+.empty .circle{width:56px;height:56px;border-radius:50%;background:var(--surface-2);display:grid;place-items:center;color:var(--text-muted)}
+.empty p{color:var(--text-secondary)}
+.banner{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:12px 16px;border-radius:var(--radius-control);background:var(--error-soft);border:1px solid rgba(248,113,113,.3)}
+.banner svg.i{color:var(--error)}
+.banner p{flex:1;min-width:200px;color:var(--text-primary)}
+.toast{display:flex;align-items:flex-start;gap:12px;padding:14px 16px;border-radius:var(--radius-control);background:var(--surface-3);border:1px solid var(--border-default);box-shadow:0 8px 24px -12px rgba(0,0,0,.6);max-width:360px}
+.toast svg.i{color:var(--success);margin-top:1px}
+.toast b{display:block;font-weight:600}
+.toast span{color:var(--text-secondary);font-size:13px;line-height:18px}
+.modal-stage{position:relative;padding:32px 16px;border-radius:var(--radius-card);border:1px dashed var(--border-default);background:
+  radial-gradient(400px 200px at 20% 20%,rgba(34,211,238,.14),transparent 70%),
+  radial-gradient(400px 220px at 85% 80%,rgba(255,138,31,.12),transparent 70%),var(--surface-1);display:grid;place-items:center}
+.modal{width:100%;max-width:440px;padding:24px;border-radius:var(--radius-modal);background:var(--glass);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);border:1px solid var(--border-strong);box-shadow:var(--highlight-top),0 24px 48px -16px rgba(0,0,0,.7)}
+.modal p{color:var(--text-secondary);margin:8px 0 20px}
+.modal .row{display:flex;justify-content:flex-end;gap:12px;flex-wrap:wrap}
+
+/* ---------- Paleta / tipografia ---------- */
+.sw-group h3{margin-bottom:12px}
+.swatches{display:grid;grid-template-columns:repeat(auto-fill,minmax(168px,1fr));gap:12px}
+.sw{background:var(--surface-2);border:1px solid var(--border-default);border-radius:var(--radius-control);overflow:hidden}
+.sw .chip{height:48px;border-bottom:1px solid var(--border-default)}
+.sw div.meta{padding:10px 12px}
+.sw b{display:block;font:600 13px/18px var(--font-ui)}
+.sw code{font:500 12px/16px var(--font-mono);color:var(--text-muted);word-break:break-all}
+.type-row{display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:16px;align-items:baseline;padding:16px 0;border-bottom:1px solid var(--border-subtle)}
+.type-row:last-child{border:0}
+.type-row .spec{font:500 12px/16px var(--font-mono);color:var(--text-muted)}
+.type-row .spec b{display:block;color:var(--text-secondary);font:500 13px/18px var(--font-ui);margin-bottom:2px}
+.t-metric{font:600 32px/36px var(--font-ui);letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.t-h1{font:700 28px/34px var(--font-title);letter-spacing:-.02em}
+.t-h2{font:600 20px/28px var(--font-title);letter-spacing:-.01em}
+.t-h3{font:600 16px/24px var(--font-ui)}
+.t-body{font:400 14px/22px var(--font-ui)}
+.t-mobile{font:400 16px/24px var(--font-ui)}
+.t-small{font:500 13px/18px var(--font-ui)}
+.t-label{font:600 11px/16px var(--font-ui);text-transform:uppercase;letter-spacing:.08em;color:var(--text-muted)}
+.t-code{font:500 13px/20px var(--font-mono)}
+footer{color:var(--text-muted);font-size:13px;line-height:18px;padding-bottom:16px}
+
+/* ---------- Responsivo ---------- */
+@media (max-width:1279px){
+  :root{--sb-w:72px}
+  .logo{padding:0;justify-content:center}
+  .logo span,.nav a span:not(.count),.group-label{display:none}
+  .nav{padding:16px 12px;gap:8px;align-items:stretch}
+  .nav>div+div{border-top:1px solid var(--border-subtle);padding-top:8px}
+  .nav a{justify-content:center;padding:0}
+  .nav .count{position:absolute;top:2px;right:2px;min-width:16px;height:16px;padding:0 4px;font-size:11px;line-height:16px;background:var(--brand);color:var(--brand-ink)}
+  .topbar,.content{padding-left:24px;padding-right:24px}
+}
+@media (max-width:767px){
+  :root{--pad:16px}
+  .sidebar{width:272px;transform:translateX(-100%)}
+  .sidebar.open{transform:none}
+  .sidebar.open .logo{padding:0 20px;justify-content:flex-start}
+  .sidebar.open .logo span,.sidebar.open .nav a span:not(.count),.sidebar.open .group-label{display:inline}
+  .sidebar.open .group-label{display:block}
+  .sidebar.open .nav{padding:16px 12px 24px;gap:20px}
+  .sidebar.open .nav>div+div{border:0;padding:0}
+  .sidebar.open .nav a{justify-content:flex-start;padding:0 12px}
+  .sidebar.open .nav .count{position:static;min-width:20px;height:20px;padding:0 6px;font-size:12px;line-height:20px;background:var(--brand-soft);color:var(--brand)}
+  .main{margin-left:0}
+  .menu-btn{display:inline-grid}
+  .topbar,.content{padding-left:16px;padding-right:16px}
+  .topbar{gap:8px}
+  .search kbd{display:none}
+  .search input{padding-right:12px}
+  .content{padding-top:24px;gap:28px}
+  h1{font-size:24px;line-height:30px}
+  .actions .btn{flex:1}
+  .type-row{grid-template-columns:1fr;gap:8px}
+  .guide-grid{grid-template-columns:minmax(0,1fr)}
+  .field input{font-size:16px}
+  .metrics{grid-template-columns:minmax(0,1fr)}
+  .chart-box{height:200px;padding-left:40px}
+  .yl{left:-40px;width:32px}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{transition-duration:0s!important;animation:none!important;scroll-behavior:auto!important}
+  .btn:active:not(:disabled){transform:none}
+  .skeleton{background:var(--surface-2)}
+}
+</style>
+</head>
+<body>
+
+<!-- Ícones (estilo lucide, traço 1.75) -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-home" viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1z"/></symbol>
+    <symbol id="i-chart" viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="M7 15v3M12 9v9M17 12v6"/></symbol>
+    <symbol id="i-fuel" viewBox="0 0 24 24"><path d="M3 21V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v16"/><path d="M2 21h14"/><path d="M15 9h2a2 2 0 0 1 2 2v5a1.5 1.5 0 0 0 3 0V8l-3-3"/><path d="M6 8h6"/></symbol>
+    <symbol id="i-drop" viewBox="0 0 24 24"><path d="M12 3s6 6.2 6 10.5A6 6 0 0 1 6 13.5C6 9.2 12 3 12 3z"/></symbol>
+    <symbol id="i-file" viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="m9 15 2 2 4-4"/></symbol>
+    <symbol id="i-cap" viewBox="0 0 24 24"><path d="m2 9 10-5 10 5-10 5z"/><path d="M6 11v5c0 1.5 2.7 3 6 3s6-1.5 6-3v-5"/></symbol>
+    <symbol id="i-wallet" viewBox="0 0 24 24"><path d="M19 7V5a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h14a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H5a2 2 0 0 1-2-2V6"/><path d="M16 13.5h.01"/></symbol>
+    <symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><path d="M16 4.6a3.5 3.5 0 0 1 0 6.8M18 14.2a6.5 6.5 0 0 1 3.5 5.8"/></symbol>
+    <symbol id="i-store" viewBox="0 0 24 24"><path d="M4 9v11h16V9"/><path d="M3 9l1.5-5h15L21 9a3 3 0 0 1-6 0 3 3 0 0 1-6 0 3 3 0 0 1-6 0z"/><path d="M10 20v-5h4v5"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></symbol>
+    <symbol id="i-bell" viewBox="0 0 24 24"><path d="M6 9a6 6 0 0 1 12 0c0 6 2 7.5 2 7.5H4S6 15 6 9z"/><path d="M10 20a2 2 0 0 0 4 0"/></symbol>
+    <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+    <symbol id="i-down" viewBox="0 0 24 24"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m8.5 12.5 2.5 2.5 4.5-5"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+    <symbol id="i-alert" viewBox="0 0 24 24"><path d="M10.3 3.9 2.4 18a2 2 0 0 0 1.7 3h15.8a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/></symbol>
+    <symbol id="i-xc" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m15 9-6 6M9 9l6 6"/></symbol>
+    <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M21 12a9 9 0 0 1-15.5 6.2L3 16"/><path d="M3 21v-5h5"/><path d="M3 12A9 9 0 0 1 18.5 5.8L21 8"/><path d="M21 3v5h-5"/></symbol>
+    <symbol id="i-save" viewBox="0 0 24 24"><path d="M5 3h11l4 4v13a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z"/><path d="M8 3v5h7M8 21v-7h8v7"/></symbol>
+    <symbol id="i-inbox" viewBox="0 0 24 24"><path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.5 5.1 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.5-6.9A2 2 0 0 0 16.7 4H7.3a2 2 0 0 0-1.8 1.1z"/></symbol>
+    <symbol id="i-trash" viewBox="0 0 24 24"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14M10 11v5M14 11v5"/></symbol>
+    <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></symbol>
+  </defs>
+</svg>
+
+<div class="scrim" id="scrim"></div>
+
+<aside class="sidebar" id="sidebar" aria-label="Menu principal">
+  <div class="logo">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2c.6 3.2 4.5 5.4 4.5 10.2A4.5 4.5 0 0 1 12 16.7a4.5 4.5 0 0 1-4.5-4.5c0-1.6.7-2.8 1.5-3.8.3 1.4 1 2.1 1.8 2.4C10.4 7.4 10.6 4.5 12 2z" fill="#FF8A1F"/><path d="M12 22a5.5 5.5 0 0 1-5.5-5.5c0-1 .4-2 .9-2.6.5 1.2 1.6 2 2.6 2.2 1.6.3 3.1-.7 3.4-2.3 1.2 1 2.1 2.5 2.1 4.2A5.5 5.5 0 0 1 12 22z" fill="#FFA04A" opacity=".9"/></svg>
+    <span>Posto Natal</span>
+  </div>
+  <nav class="nav">
+    <div>
+      <p class="group-label">Visão geral</p>
+      <ul>
+        <li><a href="#" title="Início"><svg class="i"><use href="#i-home"/></svg><span>Início</span></a></li>
+        <li><a href="#" title="Painel"><svg class="i"><use href="#i-chart"/></svg><span>Painel</span></a></li>
+      </ul>
+    </div>
+    <div>
+      <p class="group-label">Operação</p>
+      <ul>
+        <li><a href="#" title="Pista"><svg class="i"><use href="#i-fuel"/></svg><span>Pista</span></a></li>
+        <li><a href="#" title="Combustíveis"><svg class="i"><use href="#i-drop"/></svg><span>Combustíveis</span></a></li>
+      </ul>
+    </div>
+    <div>
+      <p class="group-label">Gestão</p>
+      <ul>
+        <li><a href="#" aria-current="page" title="Documentos e licenças"><svg class="i"><use href="#i-file"/></svg><span>Documentos e licenças</span></a></li>
+        <li><a href="#" title="Treinamentos"><svg class="i"><use href="#i-cap"/></svg><span>Treinamentos</span></a></li>
+        <li><a href="#" title="Financeiro"><svg class="i"><use href="#i-wallet"/></svg><span>Financeiro</span></a></li>
+        <li><a href="#" title="RH"><svg class="i"><use href="#i-users"/></svg><span>RH</span></a></li>
+      </ul>
+    </div>
+    <div>
+      <p class="group-label">Loja</p>
+      <ul>
+        <li><a href="#" title="Conveniência, 3 pendências"><svg class="i"><use href="#i-store"/></svg><span>Conveniência</span><span class="count" aria-label="3 pendências">3</span></a></li>
+      </ul>
+    </div>
+  </nav>
+</aside>
+
+<div class="main">
+  <header class="topbar">
+    <button class="icon-btn menu-btn" id="menuBtn" aria-label="Abrir menu" aria-expanded="false" aria-controls="sidebar"><svg class="i"><use href="#i-menu"/></svg></button>
+    <div class="search">
+      <svg class="i sm"><use href="#i-search"/></svg>
+      <input type="search" placeholder="Buscar documentos, órgãos, protocolos…" aria-label="Buscar">
+      <kbd>Ctrl K</kbd>
+    </div>
+    <div class="spacer"></div>
+    <button class="icon-btn" aria-label="Alertas, há novidades"><svg class="i"><use href="#i-bell"/></svg><span class="dot"></span></button>
+    <button class="avatar" aria-label="Menu do usuário">CN</button>
+  </header>
+
+  <main class="content">
+
+    <!-- Cabeçalho da página -->
+    <div class="page-header">
+      <div>
+        <p class="eyebrow">Gestão</p>
+        <h1>Documentos e licenças</h1>
+        <p class="desc">Acompanhe vencimentos, renovações e protocolos de todas as licenças do posto em um só lugar.</p>
+      </div>
+      <div class="actions">
+        <button class="btn btn-secondary"><svg class="i sm"><use href="#i-down"/></svg>Exportar</button>
+        <button class="btn btn-primary"><svg class="i sm"><use href="#i-plus"/></svg>Novo documento</button>
+      </div>
+    </div>
+
+    <!-- Métricas -->
+    <section aria-label="Resumo">
+      <div class="metrics">
+        <article class="card metric hov">
+          <div class="top"><span class="eyebrow">Em dia</span><span class="circle bg-success c-success"><svg class="i"><use href="#i-check"/></svg></span></div>
+          <p class="value">18</p>
+          <div class="foot"><span class="delta">+2 desde setembro</span>
+            <svg class="spark" viewBox="0 0 88 32" aria-hidden="true"><polyline points="2,24 16,22 30,18 44,20 58,12 72,10 86,5" fill="none" stroke="#22D3EE" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        </article>
+        <article class="card metric hov">
+          <div class="top"><span class="eyebrow">Vencem em 30 dias</span><span class="circle bg-warning c-warning"><svg class="i"><use href="#i-clock"/></svg></span></div>
+          <p class="value">4</p>
+          <div class="foot"><span class="delta">+1 desde setembro</span>
+            <svg class="spark" viewBox="0 0 88 32" aria-hidden="true"><polyline points="2,22 16,24 30,20 44,16 58,18 72,10 86,8" fill="none" stroke="#22D3EE" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        </article>
+        <article class="card metric hov">
+          <div class="top"><span class="eyebrow">Vencidos</span><span class="circle bg-error c-error"><svg class="i"><use href="#i-xc"/></svg></span></div>
+          <p class="value">1</p>
+          <div class="foot"><span class="delta">+1 desde setembro</span>
+            <svg class="spark" viewBox="0 0 88 32" aria-hidden="true"><polyline points="2,26 16,26 30,26 44,26 58,26 72,24 86,8" fill="none" stroke="#22D3EE" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        </article>
+        <article class="card metric hov">
+          <div class="top"><span class="eyebrow">Em renovação</span><span class="circle bg-info c-info"><svg class="i"><use href="#i-refresh"/></svg></span></div>
+          <p class="value">2</p>
+          <div class="foot"><span class="delta">sem mudança</span>
+            <svg class="spark" viewBox="0 0 88 32" aria-hidden="true"><polyline points="2,18 16,14 30,18 44,12 58,16 72,14 86,14" fill="none" stroke="#22D3EE" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        </article>
+      </div>
+    </section>
+
+    <!-- Gráfico -->
+    <section aria-label="Custos de renovação">
+      <div class="card">
+        <div class="card-head">
+          <div><h3>Custo de renovação por mês (R$)</h3><p>Taxas e emolumentos pagos, maio a outubro de 2026</p></div>
+          <div class="legend"><span><i></i>Custo total</span></div>
+        </div>
+        <div class="chart-box" role="img" aria-label="Gráfico de barras com o custo de renovação por mês, de maio a outubro de 2026. Agosto: R$ 3.400,00.">
+          <div class="plot">
+            <svg viewBox="0 0 600 200" preserveAspectRatio="none" aria-hidden="true"><g class="grid" vector-effect="non-scaling-stroke" stroke="rgba(148,163,184,.08)" stroke-width="1"><line x1="0" x2="600" y1="0" y2="0"/><line x1="0" x2="600" y1="40" y2="40"/><line x1="0" x2="600" y1="80" y2="80"/><line x1="0" x2="600" y1="120" y2="120"/><line x1="0" x2="600" y1="160" y2="160"/><line x1="0" x2="600" y1="200" y2="200"/></g><g fill="#22D3EE"><rect x="20" y="152" width="60" height="48"/><rect x="120" y="86" width="60" height="114"/><rect x="220" y="174.4" width="60" height="25.6"/><rect x="320" y="64" width="60" height="136"/><rect x="420" y="128.8" width="60" height="71.2"/><rect x="520" y="34" width="60" height="166" opacity=".6"/></g></svg>
+            <span class="yl" style="top:0%">5.000</span><span class="yl" style="top:20%">4.000</span><span class="yl" style="top:40%">3.000</span><span class="yl" style="top:60%">2.000</span><span class="yl" style="top:80%">1.000</span><span class="yl" style="top:100%">0</span><span class="xl" style="left:0.000%">Mai</span><span class="xl" style="left:16.667%">Jun</span><span class="xl" style="left:33.333%">Jul</span><span class="xl" style="left:50.000%">Ago</span><span class="xl" style="left:66.667%">Set</span><span class="xl" style="left:83.333%">Out</span>
+            <div class="tt-box"><span>Agosto de 2026</span><b>R$ 3.400,00</b></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tabela -->
+    <section aria-label="Próximos vencimentos">
+      <div class="card table-card">
+        <div class="card-head">
+          <div><h3>Próximos vencimentos</h3><p>Ordenados pelo menor prazo restante</p></div>
+          <button class="btn btn-ghost sm">Ver todos</button>
+        </div>
+        <div class="t-scroll">
+          <table>
+            <thead><tr><th>Documento</th><th>Órgão</th><th>Protocolo</th><th>Vencimento</th><th>Status</th><th>Ação</th></tr></thead>
+            <tbody>
+              <tr><td class="doc">Certificado do Corpo de Bombeiros (AVCB)</td><td>CBMRN</td><td class="code">BMB-2025-017733</td><td class="tab">08/10/2026</td>
+                <td><span class="badge bg-error c-error"><svg class="i"><use href="#i-xc"/></svg>Vencido</span></td><td><button class="btn btn-secondary sm">Renovar</button></td></tr>
+              <tr><td class="doc">Alvará de funcionamento</td><td>Prefeitura de Natal</td><td class="code">PMN-2026-004812</td><td class="tab">02/11/2026</td>
+                <td><span class="badge bg-warning c-warning"><svg class="i"><use href="#i-clock"/></svg>Vence em breve</span></td><td><button class="btn btn-secondary sm">Renovar</button></td></tr>
+              <tr><td class="doc">Licença de operação (LO)</td><td>IDEMA-RN</td><td class="code">IDM-LO-2023-00931</td><td class="tab">15/11/2026</td>
+                <td><span class="badge bg-warning c-warning"><svg class="i"><use href="#i-clock"/></svg>Vence em breve</span></td><td><button class="btn btn-secondary sm">Renovar</button></td></tr>
+              <tr><td class="doc">Laudo de estanqueidade dos tanques</td><td>Laboratório credenciado</td><td class="code">LAU-2026-000217</td><td class="tab">30/11/2026</td>
+                <td><span class="badge bg-warning c-warning"><svg class="i"><use href="#i-clock"/></svg>Vence em breve</span></td><td><button class="btn btn-secondary sm">Renovar</button></td></tr>
+              <tr><td class="doc">Certificado de aferição das bombas</td><td>IPEM-RN</td><td class="code">IPM-2026-018845</td><td class="tab">19/12/2026</td>
+                <td><span class="badge bg-info c-info"><svg class="i"><use href="#i-refresh"/></svg>Em renovação</span></td><td><button class="btn btn-ghost sm">Acompanhar</button></td></tr>
+              <tr><td class="doc">Autorização de revenda de combustíveis</td><td>ANP</td><td class="code">ANP-REV-2021-30412</td><td class="tab">28/02/2027</td>
+                <td><span class="badge bg-success c-success"><svg class="i"><use href="#i-check"/></svg>Em dia</span></td><td><button class="btn btn-ghost sm">Ver</button></td></tr>
+              <tr><td class="doc">Licença sanitária da conveniência</td><td>Vigilância Sanitária</td><td class="code">VIS-2026-009104</td><td class="tab">14/05/2027</td>
+                <td><span class="badge bg-success c-success"><svg class="i"><use href="#i-check"/></svg>Em dia</span></td><td><button class="btn btn-ghost sm">Ver</button></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- Componentes e estados -->
+    <section id="componentes" aria-labelledby="h-comp">
+      <div class="sec-head"><p class="eyebrow">Guia</p><h2 id="h-comp">Componentes e estados</h2><p>Tudo o que a pessoa vê e toca, em cada estado de interação.</p></div>
+
+      <div class="card">
+        <div class="card-head"><h3>Botões</h3></div>
+        <div class="t-scroll">
+          <div class="states">
+            <span></span><span class="h">Normal</span><span class="h">Hover</span><span class="h">Foco</span><span class="h">Desabilitado</span><span class="h">Carregando</span>
+
+            <span class="rl">Principal</span>
+            <span><button class="btn btn-primary">Salvar</button></span>
+            <span><button class="btn btn-primary is-hover">Salvar</button></span>
+            <span><button class="btn btn-primary is-focus">Salvar</button></span>
+            <span><button class="btn btn-primary" disabled>Salvar</button></span>
+            <span><button class="btn btn-primary" disabled><span class="spin"></span>Salvando…</button></span>
+
+            <span class="rl">Secundário</span>
+            <span><button class="btn btn-secondary">Exportar</button></span>
+            <span><button class="btn btn-secondary is-hover">Exportar</button></span>
+            <span><button class="btn btn-secondary is-focus">Exportar</button></span>
+            <span><button class="btn btn-secondary" disabled>Exportar</button></span>
+            <span><button class="btn btn-secondary" disabled><span class="spin"></span>Enviando…</button></span>
+
+            <span class="rl">Fantasma</span>
+            <span><button class="btn btn-ghost">Cancelar</button></span>
+            <span><button class="btn btn-ghost is-hover">Cancelar</button></span>
+            <span><button class="btn btn-ghost is-focus">Cancelar</button></span>
+            <span><button class="btn btn-ghost" disabled>Cancelar</button></span>
+            <span><button class="btn btn-ghost" disabled><span class="spin"></span>Aguarde…</button></span>
+
+            <span class="rl">Destrutivo</span>
+            <span><button class="btn btn-danger"><svg class="i sm"><use href="#i-trash"/></svg>Excluir</button></span>
+            <span><button class="btn btn-danger is-hover"><svg class="i sm"><use href="#i-trash"/></svg>Excluir</button></span>
+            <span><button class="btn btn-danger is-focus"><svg class="i sm"><use href="#i-trash"/></svg>Excluir</button></span>
+            <span><button class="btn btn-danger" disabled><svg class="i sm"><use href="#i-trash"/></svg>Excluir</button></span>
+            <span><button class="btn btn-danger" disabled><span class="spin"></span>Excluindo…</button></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="guide-grid">
+        <div class="card">
+          <div class="card-head"><h3>Campos de texto</h3></div>
+          <div style="display:flex;flex-direction:column;gap:16px">
+            <div class="field"><label for="f1">Nome do documento</label><input id="f1" type="text" placeholder="Ex.: Alvará de funcionamento"><span class="hint">Use o nome que aparece no documento original.</span></div>
+            <div class="field err"><label for="f2">Número do protocolo</label><input id="f2" type="text" value="PMN-2026-" aria-invalid="true" aria-describedby="f2m"><span class="msg" id="f2m"><svg class="i sm"><use href="#i-alert"/></svg>Protocolo incompleto. Informe os 6 dígitos finais.</span></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><div><h3>Salvar (interativo)</h3><p>Clique para ver o carregamento de ação por 2 segundos.</p></div></div>
+          <button class="btn btn-primary" id="saveBtn"><svg class="i sm"><use href="#i-save"/></svg><span>Salvar</span></button>
+          <p id="saveStatus" class="hint" style="margin-top:12px;color:var(--text-muted);font-size:13px;line-height:18px" role="status" aria-live="polite"></p>
+        </div>
+
+        <div class="card span-all load-demo" id="loadDemo">
+          <div class="card-head">
+            <div><h3>Carregamento de dados</h3><p>Esqueleto com o formato do conteúdo que vai chegar.</p></div>
+            <button class="btn btn-secondary sm" id="toggleLoad" aria-pressed="false">Alternar carregamento</button>
+          </div>
+          <div data-pane="real">
+            <ul class="mini-list">
+              <li><b>Alvará de funcionamento</b><span class="tab">02/11/2026</span></li>
+              <li><b>Licença de operação (LO)</b><span class="tab">15/11/2026</span></li>
+              <li><b>Laudo de estanqueidade dos tanques</b><span class="tab">30/11/2026</span></li>
+            </ul>
+          </div>
+          <div data-pane="skeleton" aria-hidden="true">
+            <div class="guide-grid" style="margin-bottom:16px">
+              <div class="card sk-card"><div class="skeleton" style="height:12px;width:40%"></div><div class="skeleton" style="height:32px;width:30%"></div><div class="skeleton" style="height:12px;width:60%"></div></div>
+              <div class="card sk-card"><div class="skeleton" style="height:12px;width:50%"></div><div class="skeleton" style="height:32px;width:25%"></div><div class="skeleton" style="height:12px;width:55%"></div></div>
+            </div>
+            <div>
+              <div class="sk-row"><div class="skeleton" style="height:14px"></div><div class="skeleton" style="height:14px"></div><div class="skeleton" style="height:14px"></div><div class="skeleton" style="height:14px"></div></div>
+              <div class="sk-row"><div class="skeleton" style="height:14px"></div><div class="skeleton" style="height:14px"></div><div class="skeleton" style="height:14px"></div><div class="skeleton" style="height:14px"></div></div>
+              <div class="sk-row"><div class="skeleton" style="height:14px"></div><div class="skeleton" style="height:14px"></div><div class="skeleton" style="height:14px"></div><div class="skeleton" style="height:14px"></div></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><h3>Estado vazio</h3></div>
+          <div class="empty">
+            <span class="circle"><svg class="i" style="width:24px;height:24px"><use href="#i-inbox"/></svg></span>
+            <p>Nenhuma pendência aberta</p>
+            <button class="btn btn-secondary sm">Ver histórico</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><h3>Erro e aviso de sucesso</h3></div>
+          <div style="display:flex;flex-direction:column;gap:16px">
+            <div class="banner" role="alert">
+              <svg class="i"><use href="#i-alert"/></svg>
+              <p>Não foi possível carregar os documentos. Verifique a conexão e tente novamente.</p>
+              <button class="btn btn-secondary sm">Tentar de novo</button>
+            </div>
+            <div class="toast" role="status">
+              <svg class="i"><use href="#i-check"/></svg>
+              <div><b>Documento salvo</b><span>O alvará de funcionamento foi atualizado.</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card span-all">
+          <div class="card-head"><div><h3>Modal em vidro</h3><p>Único uso de glass junto com a barra superior e as folhas laterais.</p></div></div>
+          <div class="modal-stage">
+            <div class="modal" role="dialog" aria-labelledby="mt">
+              <h3 id="mt">Excluir documento?</h3>
+              <p>O registro do AVCB e seu histórico de renovações serão removidos. Esta ação não pode ser desfeita.</p>
+              <div class="row"><button class="btn btn-ghost">Cancelar</button><button class="btn btn-danger"><svg class="i sm"><use href="#i-trash"/></svg>Excluir</button></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Paleta -->
+    <section id="paleta" aria-labelledby="h-pal">
+      <div class="sec-head"><p class="eyebrow">Guia</p><h2 id="h-pal">Paleta</h2><p>Todos os tokens do sistema, com nome e valor.</p></div>
+      <div class="card" style="display:flex;flex-direction:column;gap:28px">
+        <div class="sw-group"><h3>Fundo e superfícies</h3><div class="swatches">
+          <div class="sw"><div class="chip" style="background:var(--bg-base)"></div><div class="meta"><b>bg-base</b><code>#070B14</code></div></div>
+          <div class="sw"><div class="chip" style="background:var(--surface-1)"></div><div class="meta"><b>surface-1</b><code>#0D1422</code></div></div>
+          <div class="sw"><div class="chip" style="background:var(--surface-2)"></div><div class="meta"><b>surface-2</b><code>#131C2E</code></div></div>
+          <div class="sw"><div class="chip" style="background:var(--surface-3)"></div><div class="meta"><b>surface-3</b><code>#1A2539</code></div></div>
+          <div class="sw"><div class="chip" style="background:var(--glass)"></div><div class="meta"><b>glass</b><code>rgba(19,28,46,.72)</code></div></div>
+        </div></div>
+        <div class="sw-group"><h3>Bordas</h3><div class="swatches">
+          <div class="sw"><div class="chip" style="background:var(--border-subtle)"></div><div class="meta"><b>border-subtle</b><code>rgba(148,163,184,.08)</code></div></div>
+          <div class="sw"><div class="chip" style="background:var(--border-default)"></div><div class="meta"><b>border-default</b><code>rgba(148,163,184,.14)</code></div></div>
+          <div class="sw"><div class="chip" style="background:var(--border-strong)"></div><div class="meta"><b>border-strong</b><code>rgba(148,163,184,.24)</code></div></div>
+          <div class="sw"><div class="chip" style="background:var(--surface-1);box-shadow:var(--highlight-top)"></div><div class="meta"><b>highlight-top</b><code>inset 0 1px 0 rgba(255,255,255,.04)</code></div></div>
+        </div></div>
+        <div class="sw-group"><h3>Texto</h3><div class="swatches">
+          <div class="sw"><div class="chip" style="background:var(--text-primary)"></div><div class="meta"><b>text-primary</b><code>#F1F5F9</code></div></div>
+          <div class="sw"><div class="chip" style="background:var(--text-secondary)"></div><div class="meta"><b>text-secondary</b><code>#A3B1C6</code></div></div>
+          <div class="sw"><div class="chip" style="background:var(--text-muted)"></div><div class="meta"><b>text-muted</b><code>#8391A7</code></div></div>
+          <div class="sw"><div class="chip" style="background:var(--text-disabled)"></div><div class="meta"><b>text-disabled</b><code>#4B5A70</code></div></div>
+        </div></div>
+        <div class="sw-group"><h3>Marca e destaque</h3><div class="swatches">
+          <div class="sw"><div class="chip" style="background:var(--brand)"></div><div class="meta"><b>brand</b><code>#FF8A1F</code></div></div>
+          <div class="sw"><div class="chip" style="background:var(--brand-hover)"></div><div class="meta"><b>brand-hover</b><code>#FFA04A</code></div></div>
+          <div class="sw"><div class="chip" style="background:var(--brand-pressed)"></div><div class="meta"><b>brand-pressed</b><code>#E6760F</code></div></div>
+          <div class="sw"><div class="chip" style="background:var(--brand-ink)"></div><div class="meta"><b>brand-ink</b><code>#1A0F03</code></div></div>
+          <div class="sw"><div class="chip" style="background:var(--brand-soft)"></div><div class="meta"><b>brand-soft</b><code>rgba(255,138,31,.12)</code></div></div>
+          <div class="sw"><div class="chip" style="background:var(--surface-1);box-shadow:inset var(--brand-glow)"></div><div class="meta"><b>brand-glow</b><code>0 0 0 1px rgba(255,138,31,.45), 0 8px 24px -6px rgba(255,138,31,.45)</code></div></div>
+          <div class="sw"><div class="chip" style="background:var(--data)"></div><div class="meta"><b>data</b><code>#22D3EE</code></div></div>
+          <div class="sw"><div class="chip" style="background:var(--navy)"></div><div class="meta"><b>navy</b><code>#1E3A8A</code></div></div>
+        </div></div>
+        <div class="sw-group"><h3>Status</h3><div class="swatches">
+          <div class="sw"><div class="chip" style="background:var(--success)"></div><div class="meta"><b>success</b><code>#34D399</code></div></div>
+          <div class="sw"><div class="chip" style="background:var(--success-soft)"></div><div class="meta"><b>success-soft</b><code>rgba(52,211,153,.12)</code></div></div>
+          <div class="sw"><div class="chip" style="background:var(--warning)"></div><div class="meta"><b>warning</b><code>#FACC15</code></div></div>
+          <div class="sw"><div class="chip" style="background:var(--warning-soft)"></div><div class="meta"><b>warning-soft</b><code>rgba(250,204,21,.12)</code></div></div>
+          <div class="sw"><div class="chip" style="background:var(--error)"></div><div class="meta"><b>error</b><code>#F87171</code></div></div>
+          <div class="sw"><div class="chip" style="background:var(--error-soft)"></div><div class="meta"><b>error-soft</b><code>rgba(248,113,113,.12)</code></div></div>
+          <div class="sw"><div class="chip" style="background:var(--info)"></div><div class="meta"><b>info</b><code>#38BDF8</code></div></div>
+          <div class="sw"><div class="chip" style="background:var(--info-soft)"></div><div class="meta"><b>info-soft</b><code>rgba(56,189,248,.12)</code></div></div>
+        </div></div>
+        <div class="sw-group"><h3>Gráficos (ordem das séries)</h3><div class="swatches">
+          <div class="sw"><div class="chip" style="background:var(--chart-1)"></div><div class="meta"><b>chart-1 · ciano</b><code>#22D3EE</code></div></div>
+          <div class="sw"><div class="chip" style="background:var(--chart-2)"></div><div class="meta"><b>chart-2 · laranja</b><code>#FF8A1F</code></div></div>
+          <div class="sw"><div class="chip" style="background:var(--chart-3)"></div><div class="meta"><b>chart-3 · violeta</b><code>#A78BFA</code></div></div>
+          <div class="sw"><div class="chip" style="background:var(--chart-4)"></div><div class="meta"><b>chart-4 · verde</b><code>#34D399</code></div></div>
+          <div class="sw"><div class="chip" style="background:var(--chart-5)"></div><div class="meta"><b>chart-5 · rosa</b><code>#F472B6</code></div></div>
+          <div class="sw"><div class="chip" style="background:var(--chart-6)"></div><div class="meta"><b>chart-6 · cinza</b><code>#94A3B8</code></div></div>
+        </div></div>
+      </div>
+    </section>
+
+    <!-- Tipografia -->
+    <section id="tipografia" aria-labelledby="h-tip">
+      <div class="sec-head"><p class="eyebrow">Guia</p><h2 id="h-tip">Tipografia</h2><p>Plus Jakarta Sans nos títulos, Inter na interface e JetBrains Mono nos códigos.</p></div>
+      <div class="card">
+        <div class="type-row"><span class="t-metric">1.284</span><span class="spec"><b>Métrica destaque</b>32 / 36 px · 600 Inter · tabular · -0,02em</span></div>
+        <div class="type-row"><span class="t-h1">Documentos e licenças</span><span class="spec"><b>Título da página (h1)</b>28 / 34 px · 700 Jakarta · -0,02em</span></div>
+        <div class="type-row"><span class="t-h2">Próximos vencimentos</span><span class="spec"><b>Seção (h2)</b>20 / 28 px · 600 Jakarta · -0,01em</span></div>
+        <div class="type-row"><span class="t-h3">Custo de renovação por mês</span><span class="spec"><b>Subtítulo (h3)</b>16 / 24 px · 600 Inter</span></div>
+        <div class="type-row"><span class="t-body">Acompanhe vencimentos e renovações de todas as licenças do posto.</span><span class="spec"><b>Corpo</b>14 / 22 px · 400 Inter</span></div>
+        <div class="type-row"><span class="t-mobile">Informe o número do protocolo no campo abaixo.</span><span class="spec"><b>Corpo celular / campos</b>16 / 24 px · 400 Inter</span></div>
+        <div class="type-row"><span class="t-small">Vence em 02/11/2026 · Prefeitura de Natal</span><span class="spec"><b>Pequeno</b>13 / 18 px · 500 Inter</span></div>
+        <div class="type-row"><span class="t-label">Vencem em 30 dias</span><span class="spec"><b>Rótulo superior</b>11 / 16 px · 600 Inter · MAIÚSCULAS · 0,08em</span></div>
+        <div class="type-row"><span class="t-code">PMN-2026-004812</span><span class="spec"><b>Código</b>13 / 20 px · 500 JetBrains Mono</span></div>
+      </div>
+    </section>
+
+    <footer>Prévia visual do design system do Posto Natal. Dados fictícios, apenas para demonstração.</footer>
+  </main>
+</div>
+
+<script>
+(function(){
+  var sb=document.getElementById('sidebar'),sc=document.getElementById('scrim'),mb=document.getElementById('menuBtn');
+  function setMenu(o){sb.classList.toggle('open',o);sc.classList.toggle('on',o);mb.setAttribute('aria-expanded',o);mb.setAttribute('aria-label',o?'Fechar menu':'Abrir menu');}
+  mb.addEventListener('click',function(){setMenu(!sb.classList.contains('open'));});
+  sc.addEventListener('click',function(){setMenu(false);});
+  document.addEventListener('keydown',function(e){if(e.key==='Escape'){setMenu(false);}});
+
+  var sv=document.getElementById('saveBtn'),st=document.getElementById('saveStatus');
+  sv.addEventListener('click',function(){
+    if(sv.disabled)return;
+    var orig=sv.innerHTML;
+    sv.disabled=true;
+    sv.innerHTML='<span class="spin"></span><span>Salvando…</span>';
+    st.textContent='';
+    setTimeout(function(){sv.innerHTML=orig;sv.disabled=false;st.textContent='Alterações salvas.';},2000);
+  });
+
+  var ld=document.getElementById('loadDemo'),tg=document.getElementById('toggleLoad');
+  tg.addEventListener('click',function(){var on=ld.classList.toggle('loading');tg.setAttribute('aria-pressed',on);});
+})();
+</script>
+</body>
+</html>

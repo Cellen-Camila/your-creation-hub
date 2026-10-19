@@ -1,327 +1,328 @@
-# PRD – Plataforma de Gestão Integrada para Posto de Combustível
-
-Pista • Combustíveis • RH • Administrativo • Licenças e Alvarás • Financeiro • Conveniência • Estoques • Pedidos
+# PRD – Sistema de Gestão do Posto Natal
 
 | Campo | Informação |
 | --- | --- |
-| Versão | 1.0 (rascunho para validação) |
-| Data | 16/10/2026 |
-| Status | Em definição |
-| Responsável | Gerência do posto |
-| Sistema atual de referência | Linx / Webposto |
-
-> Fonte: `PRD_Plataforma_Gestao_Posto.pdf`. Este arquivo é a transcrição em Markdown para servir de referência ao desenvolvimento.
+| Versão | 2.0 (substitui integralmente a versão 1.0) |
+| Data | 19/10/2026 |
+| Status | Em validação |
+| Fonte | Documento "CRIAÇÃO DO SISTEMA" (levantamento de rotinas do posto) |
+| Posto | Posto Natal – Migra Combustíveis LTDA |
+| CNPJ | 35.751.096/0001-04 |
+| Endereço | Av. Almirante Alexandrino de Alencar, 593 – Alecrim – Natal/RN |
 
 ## Sumário
 
-1. Visão geral do produto
-2. Problema e objetivos
-3. Usuários e perfis de acesso
-4. Escopo e arquitetura de módulos
-5. Requisitos funcionais por módulo
-6. Integrações
+1. Visão geral
+2. Objetivos
+3. Quem usa
+4. Módulos e calendário de rotinas
+5. Regras comuns a todos os módulos
+6. Requisitos por módulo
 7. Requisitos não funcionais
-8. Indicadores de sucesso (KPIs)
-9. Roadmap de entregas
-10. Riscos e premissas
-11. Glossário
+8. Ordem de entrega
+9. Pontos a confirmar
+10. Glossário
 
-## 1. Visão geral do produto
+## 1. Visão geral
 
-A plataforma é um sistema web e mobile que concentra, em um único lugar, toda a gestão do posto: operação de pista, controle de combustíveis e tanques, pessoas, rotinas administrativas, documentos regulatórios, finanças, loja de conveniência, estoques e compras. Ela não substitui o PDV/ERP fiscal já em uso (Linx/Webposto) no primeiro momento: consome os dados dele e acrescenta as camadas de controle, conferência, alerta e visão gerencial que hoje são feitas em planilhas, papel e WhatsApp.
+O sistema substitui as planilhas, formulários em papel e controles de memória do posto por um único lugar onde cada rotina é registrada, cada documento tem prazo e cada manutenção tem histórico com valor e comprovante.
 
-### Proposta de valor
+Ele cobre seis áreas: **Pista**, **Documentos e licenças**, **Cursos, treinamentos e exames**, **Conveniência**, **Administrativo e financeiro** e **RH**. Em todas, o sistema sabe com que frequência cada rotina deve acontecer e avisa quando ela está para vencer ou já atrasou.
 
-- **Visão macro em uma tela:** vendas, margem, caixa, estoque de tanques, pendências de RH e vencimentos de licenças.
-- **Fim do retrabalho:** conciliações (bancária, cartões, LMC) feitas com apoio automático e não à mão.
-- **Prevenção:** alertas antes de faltar combustível, vencer um alvará, estourar uma folga ou um título ficar em atraso.
-- **Rastreabilidade:** cada diferença de caixa, perda de combustível ou avaria tem responsável, motivo e histórico.
-- **Envio à contabilidade organizado:** pacote mensal (fiscal, financeiro e RH) gerado pelo sistema.
+Os formulários exigidos pela ANP (drenagem de diesel e análise de qualidade no recebimento) saem do sistema no mesmo formato do papel, prontos para imprimir e assinar em caso de fiscalização.
 
-## 2. Problema e objetivos
+## 2. Objetivos
 
-### Problemas atuais
-
-- Informações espalhadas entre ERP, planilhas, extratos bancários, portais de adquirentes e papel.
-- Conciliação de cartões e bancária manual e demorada; taxas e recebíveis divergentes passam despercebidos.
-- LMC e medições de tanque dependem de lançamento manual, com risco de erro e de não conformidade com a ANP.
-- Controle de ponto, atestados, escalas (inclusive a do GNV), uniformes e EPI sem visão consolidada.
-- Vencimentos de licenças, alvarás e laudos controlados de memória ou em planilha, com risco de multa ou interdição.
-- Diferenças de caixa por frentista e perdas/avarias na conveniência sem histórico estruturado.
-- Pedidos de combustível e de mercadoria feitos sem base em giro e cobertura de estoque.
-
-### Objetivos do produto
-
-| Objetivo | Meta indicativa (12 meses) |
+| Objetivo | Como saber que deu certo |
 | --- | --- |
-| Reduzir tempo de rotinas financeiras diárias | -50% no tempo gasto em conciliações |
-| Zerar vencimentos não planejados de licenças | 0 documentos vencidos sem alerta prévio |
-| Controlar perdas de combustível | Variação do LMC dentro da tolerância regulatória em 100% dos dias, com justificativa registrada |
-| Evitar ruptura de combustível | 0 bicos parados por falta de produto |
-| Reduzir diferenças de caixa | -30% no valor total de quebras de caixa |
-| Agilizar fechamento mensal com a contabilidade | Pacote enviado até o 3º dia útil |
+| Nenhuma rotina obrigatória esquecida | Toda rotina com frequência definida (diária, semanal, quinzenal, semestral, anual) aparece no painel quando vence, e o atraso fica visível. |
+| Nenhum documento ou licença vencido sem aviso | Todo documento tem data de vencimento e é avisado com antecedência. |
+| Fiscalização da ANP atendida na hora | Os registros de drenagem e de análise no recebimento podem ser impressos no formato exigido, para qualquer data. |
+| Custo de manutenção conhecido | Cada manutenção tem data, serviço, profissional, valor e comprovante, e o gasto por equipamento e por período aparece em relatório. |
+| Fim do papel e da planilha | Formulários, checklists e planilhas listados neste PRD passam a ser preenchidos no sistema, pelo celular. |
 
-## 3. Usuários e perfis de acesso
+## 3. Quem usa
 
-| Perfil | Quem é | Principais necessidades |
+| Perfil | Quem é | O que faz no sistema |
 | --- | --- | --- |
-| Proprietário / Diretor | Dono ou sócio | Visão consolidada de resultado, margem, caixa e riscos; acesso de leitura a tudo. |
-| Gerente | Gerente geral do posto | Operar e aprovar todas as rotinas; dashboards; alertas; envio à contabilidade. |
-| Administrativo / Financeiro | Auxiliar administrativo | Contas a pagar/receber, conciliações, LMC, documentos. |
-| Chefe de pista / Supervisor | Líder de turno | Abertura e fechamento de turno, encerrantes, medições, escalas do turno. |
-| Frentista | Operador de pista | App simples: registrar ponto, ver escala, prestar contas do caixa, solicitar EPI. |
-| Operador de conveniência | Caixa / repositor da loja | Entrada de mercadoria, contagem, registro de avaria. |
-| Contador (externo) | Escritório de contabilidade | Acesso restrito ao pacote mensal e documentos compartilhados. |
+| Gerente | Gerente do posto | Vê tudo, confere e aprova rotinas, dá baixa em pendências, acompanha o painel. |
+| Chefe de pista | Líder de turno da pista | Registra aferições, encerrantes de GNV, drenagem, análise no recebimento, inspeções e limpezas. |
+| Auxiliar / frentista | Operador de pista | Ajuda nas aferições e registra rotinas simples (limpeza da calha, encerrantes). |
+| Funcionária da conveniência | Caixa / repositora | Preenche o checklist da loja, temperatura dos equipamentos, contagem e validade. |
+| Administrativo / financeiro | Escritório | LMC, contas a pagar, empréstimos, documentos e licenças, RH. |
+| Diretoria | Sócios da Migra Combustíveis | Leitura de tudo, com foco em vendas, margem, empréstimos e vencimentos. |
 
-**Regras de permissão:** acesso por perfil e por módulo (ver, criar, editar, aprovar, excluir); ações sensíveis (estorno, ajuste de estoque, abono de ponto, baixa de título) exigem aprovação do Gerente e ficam registradas em trilha de auditoria.
+Toda ação fica registrada com quem fez e quando. Perfis com permissões diferentes por módulo entram na fase 2 (ver seção 8). Até lá, toda a equipe logada vê e registra tudo.
 
-## 4. Escopo e arquitetura de módulos
+## 4. Módulos e calendário de rotinas
 
-| Módulo | Escopo resumido |
-| --- | --- |
-| Pista | Turnos, frentistas, bicos/encerrantes, fechamento de caixa, GNV, serviços (troca de óleo, lavagem). |
-| Combustíveis e tanques | Medições, LMC, descargas, perdas/sobras, preços e pesquisa de concorrência. |
-| RH / DP | Cadastro, ponto, atestados, escalas, férias, uniformes e EPI, advertências, comunicados, envio à contabilidade. |
-| Administrativo | Tarefas, checklists, manutenção, fornecedores, contratos, ocorrências. |
-| Licenças e alvarás | Cadastro de documentos, vencimentos, alertas, repositório digital, histórico de renovações. |
-| Financeiro | Contas a pagar/receber, conciliação bancária e de cartões, fluxo de caixa, DRE gerencial. |
-| Conveniência | Entrada de notas, precificação, margem, avarias e perdas, curva ABC. |
-| Estoques | Estoque da loja, lubrificantes, filtros, insumos, uniformes/EPI; inventários e ajustes. |
-| Pedidos e compras | Sugestão de compra, pedidos de combustível e mercadoria, cotação, recebimento. |
-| Painel e alertas | Dashboard gerencial, notificações, relatórios. |
-
-**Fora do escopo da versão 1:** emissão de NF-e/NFC-e e operação de PDV (permanecem no Linx/Webposto); folha de pagamento e envio ao eSocial (permanecem na contabilidade); automação de bombas em tempo real (avaliar na fase 3).
-
-## 5. Requisitos funcionais por módulo
-
-Prioridade: **Alta** = obrigatório no MVP; **Média** = segunda entrega; **Baixa** = evolução futura.
-
-### 5.1 Pista e operação de turno
-
-| ID | Requisito | Prior. |
+| Rotina | Frequência | Módulo |
 | --- | --- | --- |
-| PIS-01 | Cadastrar turnos (horários, dias) e vincular frentistas e chefe de pista a cada turno. | Alta |
-| PIS-02 | Abertura de turno com registro dos encerrantes iniciais de cada bico (manual ou importado do ERP/automação). | Alta |
-| PIS-03 | Fechamento de turno com encerrantes finais, cálculo automático de litros vendidos por bico, produto e frentista. | Alta |
-| PIS-04 | Prestação de contas do frentista: dinheiro, cartões (por bandeira/adquirente), PIX, notas a prazo, vales e sangrias. | Alta |
-| PIS-05 | Cálculo automático da diferença de caixa (sobra/falta) por frentista e turno, com campo de justificativa e aprovação. | Alta |
-| PIS-06 | Histórico e ranking de diferenças de caixa por frentista, com opção de gerar desconto/advertência vinculada ao RH. | Média |
-| PIS-07 | Controle específico do GNV: vendas por compressor/bico, leitura de medidor, escala dedicada e paradas de manutenção. | Alta |
-| PIS-08 | Registro de serviços de pista (troca de óleo, filtros, aditivos, lavagem) com comissão por frentista. | Média |
-| PIS-09 | Checklist de abertura/fechamento de pista (limpeza, extintores, iluminação, calibrador, área de descarga). | Média |
-| PIS-10 | Registro de aferição volumétrica diária dos bicos (medida de 20 L) com alerta de desvio. | Alta |
-| PIS-11 | Registro de ocorrências de pista (drive-off/evasão, acidentes, reclamações) com fotos. | Média |
-| PIS-12 | Metas de vendas por frentista (litros, aditivados, lubrificantes, conveniência) e painel de acompanhamento. | Baixa |
+| Encerrantes de GNV (06:00, 14:20 e 21:00) | Diária | Pista |
+| Aferição de diesel S500 (bicos B3 e B4) | Diária | Pista |
+| Limpeza da calha | Diária | Pista |
+| Controle de temperatura dos 9 equipamentos | Diária | Conveniência |
+| Contagem de itens | Diária | Conveniência |
+| Checklist da conveniência | Diária | Conveniência |
+| LMC | Diária | Administrativo e financeiro |
+| Pesquisa de preço da concorrência | Quarta-feira e sábado | Pista |
+| Aferição de todas as bombas (B1 a B16) | Semanal | Pista |
+| Inspeção dos sumps das bombas | Semanal | Pista |
+| Drenagem do fundo dos tanques de diesel | Quinzenal | Pista |
+| Análise de qualidade | A cada recebimento de combustível | Pista |
+| Dedetização | A cada 3 meses | Documentos e licenças |
+| Certificado de Regularidade do IBAMA | A cada 3 meses | Documentos e licenças |
+| Limpeza da caixa d'água | Semestral | Documentos e licenças |
+| Manutenção do gerador | Semestral | Pista (manutenções) |
+| ASO de frentistas e chefe de pista | Semestral | Cursos, treinamentos e exames |
+| Documentos com renovação anual (AVCB, laudos, alvarás etc.) | Anual | Documentos e licenças |
+| ASO de administrativo e conveniência | Anual | Cursos, treinamentos e exames |
+| Boas práticas de manipulação de alimentos | Anual | Cursos, treinamentos e exames |
+| NR-20 | A cada 2 anos | Cursos, treinamentos e exames |
+| PGR | A cada 2 anos | Documentos e licenças |
+| Trocas de filtro, óleo, limpeza de caixas separadoras e manutenções | Quando acontecer (data informada) | Pista (manutenções) |
 
-### 5.2 Combustíveis, tanques e LMC
+## 5. Regras comuns a todos os módulos
 
-| ID | Requisito | Prior. |
+**RC-01 – Rotina periódica.** Toda rotina com frequência gera uma ocorrência esperada. Se não for registrada até o fim do prazo, aparece como atrasada no painel, com o tempo de atraso.
+
+**RC-02 – Registro de manutenção.** Toda manutenção usa o mesmo formulário: data do serviço, serviço realizado, profissional ou empresa, valor cobrado e documentos anexados (nota, orçamento, laudo, fotos). Cada registro fica ligado a um equipamento ou área.
+
+**RC-03 – Documento com periodicidade.** Todo documento, licença ou laudo guarda: data de emissão ou realização, profissional ou empresa responsável, valor pago, arquivo anexado, periodicidade e próximo vencimento (calculado a partir da periodicidade, com possibilidade de ajuste manual quando o documento trouxer outra data).
+
+**RC-04 – Avisos escalonados.** Vencimentos são avisados com antecedência (padrão: 90, 60, 30, 15 e 7 dias, ajustável por item) e aparecem no painel em verde (em dia), amarelo (vence em breve), vermelho (vencido) e azul (em renovação).
+
+**RC-05 – Anexos.** Qualquer registro aceita fotos e PDFs, tirados pelo celular ou enviados do computador.
+
+**RC-06 – Rastro.** Todo registro guarda quem criou, quem alterou e quando. Registros exigidos por órgãos (ANP, IPEM, Bombeiros) não podem ser apagados.
+
+**RC-07 – Impressão no formato oficial.** Formulários que hoje são impressos e assinados (drenagem, análise no recebimento, aferição de bombas) são gerados em PDF no mesmo layout do papel, com espaço para assinatura.
+
+## 6. Requisitos por módulo
+
+Prioridade: **Alta** = obrigatório na primeira entrega do módulo; **Média** = segunda entrega; **Baixa** = evolução.
+
+### 6.1 Pista
+
+#### Qualidade do combustível (ANP)
+
+| ID | Requisito | Prioridade |
 | --- | --- | --- |
-| CMB-01 | Cadastro de tanques (produto, capacidade, tabela de arqueação/conversão régua x litros) e bicos vinculados. | Alta |
-| CMB-02 | Registro de medição diária por régua (e/ou sonda) com conversão automática para litros. | Alta |
-| CMB-03 | Geração do LMC diário por produto: estoque de abertura, recebimentos, vendas, estoque escritural, estoque de fechamento e perdas/sobras. | Alta |
-| CMB-04 | Alerta quando a perda ou sobra ultrapassar a tolerância regulatória, exigindo justificativa antes de fechar o dia. | Alta |
-| CMB-05 | Registro de descarga: NF do distribuidor, volume faturado x medido antes/depois, temperatura/densidade, teste de qualidade, motorista e placa. | Alta |
-| CMB-06 | Cálculo de cobertura de estoque (dias restantes) com base na média de vendas e alerta de nível mínimo. | Alta |
-| CMB-07 | Histórico de custo médio por litro e de preço de bomba por produto. | Alta |
-| CMB-08 | Simulador de preço: margem bruta por litro, impacto de reajuste e preço sugerido. | Média |
-| CMB-09 | Pesquisa de preços da concorrência: cadastro de postos concorrentes, registro periódico de preços e comparativo. | Média |
-| CMB-10 | Registro de alterações de preço com data/hora, responsável e motivo. | Alta |
-| CMB-11 | Impressão/exportação do LMC no formato exigido para fiscalização e arquivo. | Alta |
+| PIS-01 | **Drenagem quinzenal do fundo dos tanques de diesel** (Resolução ANP nº 968/2024, art. 21). Para cada tanque de diesel: produto, capacidade (L), presença de água no medidor (mm), aspecto, cor, volume de amostra drenado (L), presença de água (sim/não), volume de água drenado (L). Para o registro: data da coleta, nome, RG e assinatura do responsável. Cabeçalho com razão social e CNPJ do posto. | Alta |
+| PIS-02 | Aviso quando a drenagem quinzenal de um tanque estiver para vencer ou atrasada. Segundo fontes do setor (texto oficial a conferir, seção 9), a regra geral é drenagem semanal, e o intervalo de 15 dias só vale com medição diária do nível de água no tanque. Se a medição diária encontrar água livre, a drenagem tem que ser feita na hora. Por isso o sistema registra a medição diária de água (PIS-22) e alerta para drenar quando ela acusar água. | Alta |
+| PIS-03 | **Análise de qualidade no recebimento de combustível.** Dados do recebimento: produto, volume recebido (L), data da coleta, distribuidor e CNPJ, transportador e CNPJ, nota fiscal, placa do caminhão/reboque, nome e RG do motorista, nome do analista. Resultados: aspecto, cor, massa específica a 20 °C, teor de álcool na gasolina, teor alcoólico no etanol (AEHC). Responsável pelo preenchimento e assinatura. Cabeçalho com razão social, CNPJ, endereço e bairro do posto. | Alta |
+| PIS-04 | Impressão da drenagem e da análise no recebimento no layout dos formulários atuais (RC-07). | Alta |
 
-### 5.3 Recursos Humanos / DP
+#### Aferições e encerrantes
 
-| ID | Requisito | Prior. |
+| ID | Requisito | Prioridade |
 | --- | --- | --- |
-| RH-01 | Cadastro completo de colaboradores: dados pessoais, cargo, admissão, salário base, documentos digitalizados, tamanhos de uniforme e calçado. | Alta |
-| RH-02 | Controle de ponto: importação do relógio de ponto ou registro via app com geolocalização; espelho de ponto; banco de horas. | Alta |
-| RH-03 | Tratamento de ocorrências de ponto: atrasos, faltas, horas extras, abonos (com aprovação do gerente). | Alta |
-| RH-04 | Registro de atestados médicos (data, dias, CID opcional, anexo) com reflexo automático no ponto e na escala. | Alta |
-| RH-05 | Escala de folgas mensal com regras (folga semanal, domingos alternados, limites de horas), detecção de conflitos e publicação no app. | Alta |
-| RH-06 | Escala do GNV separada, com cobertura mínima por turno e alerta de buraco na escala. | Alta |
-| RH-07 | Programação e controle de férias (período aquisitivo, vencimento, aviso). | Média |
-| RH-08 | Uniformes e EPI: estoque por item e tamanho, ficha de entrega com assinatura digital, periodicidade de troca e CA do EPI com validade. | Alta |
-| RH-09 | Alerta de EPI/uniforme com troca vencida por colaborador e sugestão de compra. | Média |
-| RH-10 | Advertências e suspensões: modelo de documento, registro, assinatura e histórico por colaborador. | Alta |
-| RH-11 | Comunicados internos com confirmação de leitura pelo app. | Média |
-| RH-12 | Controle de ASO (admissional, periódico, demissional) e treinamentos obrigatórios com validade. | Alta |
-| RH-13 | Fechamento mensal do RH: relatório de ponto, faltas, atestados, horas extras e descontos para a contabilidade. | Alta |
-| RH-14 | Admissão e desligamento com checklist de documentos e devolução de uniformes/EPI. | Média |
+| PIS-05 | **Aferição semanal de todas as bombas.** Bicos B1-S10, B2-S10, B3-DC, B4-DC, B5-Eta, B6-GA, B7-GC, B8-GC, B9-Eta, B10-GC, B11-GA, B12-GC, B13-GA, B14-GC, B15-Eta e B16-GC. Para cada bico: vazão mínima em 20 L, vazão máxima em 20 L, tempo para o motor desligar, lacres rompidos (sim/não), vazão na proveta e encerrante. Ao final: nº do chamado e bico (quando houver problema), observações, chefe de pista, auxiliar e gerente. | Alta |
+| PIS-06 | **Aferição diária do diesel S500** (bicos B3-DC e B4-DC), com os mesmos procedimentos da aferição semanal. | Alta |
+| PIS-07 | Alerta quando a vazão na proveta sair da tolerância ou houver lacre rompido, pedindo nº do chamado técnico. | Alta |
+| PIS-08 | **Encerrantes de GNV diários** dos bicos 17, 18, 19 e 20, nos horários 06:00, 14:20 e 21:00. O sistema calcula o volume vendido entre leituras. | Alta |
+| PIS-09 | Cadastro dos bicos (número, produto, bomba) e dos tanques (produto, capacidade), para que os formulários já venham preenchidos. | Alta |
 
-### 5.4 Administrativo
+#### Pesquisa de preço
 
-| ID | Requisito | Prior. |
+| ID | Requisito | Prioridade |
 | --- | --- | --- |
-| ADM-01 | Gestão de tarefas e rotinas recorrentes (diárias, semanais, mensais) com responsável, prazo e status. | Alta |
-| ADM-02 | Checklists configuráveis (abertura de loja, limpeza de banheiros, inspeção de extintores, etc.) preenchidos pelo celular com foto. | Média |
-| ADM-03 | Manutenção de equipamentos: cadastro (bombas, compressor GNV, gerador, câmaras frias), manutenções preventivas e corretivas, custos. | Média |
-| ADM-04 | Cadastro de fornecedores e prestadores com contatos, condições comerciais e avaliação. | Alta |
-| ADM-05 | Gestão de contratos (bandeira/distribuidora, aluguel, prestadores, adquirentes) com vigência, reajuste e alertas. | Média |
-| ADM-06 | Livro de ocorrências administrativas e registro de visitas de fiscalização. | Média |
-| ADM-07 | Agenda do gerente integrada a vencimentos de todos os módulos. | Baixa |
+| PIS-10 | **Pesquisa de preço toda quarta-feira e sábado.** Preço de gasolina comum, etanol e diesel S-10 dos concorrentes Leandro (Av. 9), Jota Flor, Campo Bello (Cemitério), Leandro (Santo Expedito) e Junior Tangará, e do próprio Posto Natal. | Média |
+| PIS-11 | Cadastro de concorrentes editável (incluir e desativar postos). | Média |
+| PIS-12 | Comparativo: diferença do Posto Natal para cada concorrente e histórico em gráfico. | Média |
 
-### 5.5 Licenças, alvarás e documentos
+#### Inspeções, trocas e limpezas
 
-Cada documento é cadastrado com: tipo, órgão emissor, número, data de emissão, data de vencimento, responsável, custo da renovação, antecedência necessária para renovar e anexo digital. Exemplos de documentos a controlar (lista a ser validada com a contabilidade e órgãos locais):
-
-| Documento | Órgão / observação |
-| --- | --- |
-| Autorização de revenda (registro ANP) | ANP |
-| Alvará de funcionamento | Prefeitura |
-| Licença ambiental de operação | Órgão ambiental estadual/municipal |
-| Certificado do Corpo de Bombeiros | Corpo de Bombeiros Militar do estado |
-| Licença sanitária da conveniência | Vigilância Sanitária |
-| Verificação/aferição das bombas | Inmetro / órgão metrológico estadual |
-| Teste de estanqueidade dos tanques | Laudo técnico exigido pela licença ambiental |
-| Laudos e programas de segurança (PGR, PCMSO, laudos de periculosidade) | Segurança e medicina do trabalho |
-| Certidões negativas (federal, estadual, municipal, FGTS, trabalhista) | Diversos |
-| Certificado digital da empresa | Autoridade certificadora |
-| Contrato com a distribuidora / bandeira | Distribuidora |
-| Seguros (patrimonial, responsabilidade civil, ambiental) | Seguradora |
-
-| ID | Requisito | Prior. |
+| ID | Requisito | Prioridade |
 | --- | --- | --- |
-| LIC-01 | Cadastro de documentos com todos os campos acima e repositório digital pesquisável. | Alta |
-| LIC-02 | Alertas escalonados de vencimento (ex.: 90, 60, 30, 15 e 7 dias) por e-mail, app e painel. | Alta |
-| LIC-03 | Fluxo de renovação com etapas (juntar documentos, protocolar, pagar taxa, aguardar emissão) e anexos por etapa. | Alta |
-| LIC-04 | Painel de semáforo: em dia, a vencer, vencido, em renovação. | Alta |
-| LIC-05 | Histórico de renovações e custos anuais com regularização. | Média |
-| LIC-06 | Lançamento automático da taxa de renovação em contas a pagar. | Média |
-| LIC-07 | Compartilhamento controlado de documentos com contador e fiscalização (link com validade). | Baixa |
+| PIS-13 | **Inspeção semanal dos sumps das bombas:** data da inspeção e se houve necessidade de limpeza. | Alta |
+| PIS-14 | **Limpeza diária da calha:** registro de feito/não feito, com foto opcional. | Média |
+| PIS-15 | **Troca do filtro do diesel S10 e do S500:** data da troca, separada por produto. | Média |
+| PIS-16 | **Troca do óleo do compressor:** data da troca. | Média |
+| PIS-17 | **Limpeza da caixa separadora da pista** e **da caixa separadora da troca de óleo:** data da limpeza, empresa e comprovante. | Média |
 
-### 5.6 Financeiro
+#### Manutenções
 
-| ID | Requisito | Prior. |
+| ID | Requisito | Prioridade |
 | --- | --- | --- |
-| FIN-01 | Contas a pagar: lançamento manual ou por importação de XML de NF-e, parcelas, centro de custo, aprovação e baixa. | Alta |
-| FIN-02 | Contas a receber: vendas a prazo/frotas, faturas de clientes, notas assinadas, cobrança e controle de inadimplência. | Alta |
-| FIN-03 | Conciliação bancária: importação de extrato (OFX/CNAB ou API bancária) e casamento automático com lançamentos. | Alta |
-| FIN-04 | Conciliação de cartões: importação das vendas (ERP) e dos recebíveis (adquirentes), conferência de taxas contratadas, prazos, chargebacks e antecipações. | Alta |
-| FIN-05 | Conciliação de PIX e depósitos de caixa dos turnos. | Alta |
-| FIN-06 | Fechamento de caixa diário consolidado (todos os turnos + loja) com envio ao cofre/banco. | Alta |
-| FIN-07 | Fluxo de caixa realizado e projetado (diário, semanal, mensal). | Alta |
-| FIN-08 | DRE gerencial por unidade de negócio (combustíveis, GNV, conveniência, serviços). | Média |
-| FIN-09 | Plano de contas e centros de custo configuráveis. | Alta |
-| FIN-10 | Controle de cheques, vales de frota e convênios. | Média |
-| FIN-11 | Pacote mensal para a contabilidade: extratos, conciliações, notas de entrada/saída, LMC e relatórios de RH em um único envio. | Alta |
-| FIN-12 | Indicadores de custo financeiro: taxa média de cartão, custo de antecipação, juros pagos. | Média |
+| PIS-18 | Registro de manutenção (RC-02) para: bombas, GNV, Veeder Root, tanques, compressor, gerador, predial e equipamentos em geral. | Alta |
+| PIS-19 | Manutenção do gerador com periodicidade de 6 meses e aviso de vencimento. | Média |
+| PIS-20 | **Compra de equipamentos reserva para a pista:** data da compra e documentos. | Média |
+| PIS-21 | Relatório de gasto com manutenção por equipamento, por tipo e por período. | Média |
 
-### 5.7 Conveniência
+#### Estoque de combustíveis
 
-| ID | Requisito | Prior. |
+| ID | Requisito | Prioridade |
 | --- | --- | --- |
-| CONV-01 | Entrada de notas por importação de XML ou chave da NF-e, com conferência item a item (quantidade, validade, preço de custo). | Alta |
-| CONV-02 | Divergências na entrada (falta, sobra, avaria, preço diferente) registradas e vinculadas ao fornecedor. | Alta |
-| CONV-03 | Precificação: margem/markup por categoria, preço sugerido, alerta quando o custo subir e a margem cair abaixo da meta. | Alta |
-| CONV-04 | Emissão de etiquetas de gôndola após alteração de preço. | Média |
-| CONV-05 | Registro de avarias, vencidos e perdas com motivo, foto e valor, gerando nota/baixa de estoque. | Alta |
-| CONV-06 | Controle de validade com alerta de produtos próximos ao vencimento. | Alta |
-| CONV-07 | Relatórios de venda, margem, curva ABC, itens sem giro e ticket médio. | Média |
-| CONV-08 | Promoções e combos (ex.: abasteceu, ganhou desconto no café). | Baixa |
+| PIS-22 | **Controle manual do estoque de combustíveis:** medição diária por tanque, com data e hora, incluindo o nível de água no fundo (mm). | Alta |
+| PIS-23 | **Controle do estoque pelo sistema** (valor informado pelo Linx/Webposto) e comparativo com a medição manual, mostrando a diferença por tanque. | Alta |
 
-### 5.8 Estoques
+### 6.2 Documentos e licenças
 
-| ID | Requisito | Prior. |
+Todos os itens seguem RC-03 e RC-04. A periodicidade abaixo é a informada pelo posto. Os itens marcados como "a confirmar" dependem da pesquisa das regras de Natal/RN (seção 9).
+
+| ID | Documento | Periodicidade |
 | --- | --- | --- |
-| EST-01 | Estoque multi-local: loja, depósito, lubrificantes/filtros da pista, uniformes/EPI, materiais de limpeza e escritório. | Alta |
-| EST-02 | Movimentações rastreadas: entrada, venda, transferência, consumo interno, avaria, ajuste (com aprovação). | Alta |
-| EST-03 | Inventário: contagem cíclica e geral pelo celular (leitor de código de barras), comparativo com o sistema e ajuste aprovado. | Alta |
-| EST-04 | Estoque mínimo e máximo por item com alerta de ruptura. | Alta |
-| EST-05 | Custo médio e valor total do estoque por local e categoria. | Alta |
-| EST-06 | Relatório de acuracidade de inventário e perdas por período. | Média |
+| DOC-01 | AVCB (Corpo de Bombeiros) – data, profissional responsável e valor | Anual |
+| DOC-02 | Teste de estanqueidade do GNV – data, profissional e valor | Anual |
+| DOC-03 | Teste de estanqueidade das bombas – data, profissional e valor | Anual |
+| DOC-04 | Laudo de aceitação e estanqueidade do sistema de hidrantes – data, profissional e valor | Anual |
+| DOC-05 | Laudo SPDA (para-raios) – data, profissional e valor | Anual |
+| DOC-06 | Plano de manutenção do sistema de hidrante predial de combate a incêndio – data, profissional e valor | Anual |
+| DOC-07 | Laudo de conformidade da reserva técnica de incêndio – data, profissional e valor | Anual |
+| DOC-08 | Alvará de Funcionamento e Localização | A confirmar (Natal/RN) |
+| DOC-09 | Licença de Operação (LO) ambiental | A confirmar (Natal/RN) |
+| DOC-10 | Autorização de operação da ANP | A confirmar |
+| DOC-11 | Cadastro Técnico Federal (CTF/APP) do IBAMA | A confirmar |
+| DOC-12 | Certificado de Regularidade do IBAMA (CR) | A cada 3 meses |
+| DOC-13 | Relatório Anual de Atividades (RAPP) do IBAMA | Anual (prazo a confirmar) |
+| DOC-14 | CNPJ ativo | Sem vencimento (conferir situação) |
+| DOC-15 | Contrato social | Sem vencimento (atualizar a cada alteração) |
+| DOC-16 | Inscrição estadual | Sem vencimento (conferir situação) |
+| DOC-17 | Inscrição municipal | Sem vencimento (conferir situação) |
+| DOC-18 | Laudo de aferição das bombas (IPEM/Inmetro) | A confirmar (Natal/RN) |
+| DOC-19 | Laudo de aferição das bombas de GNV (IPEM/Inmetro) | A confirmar (Natal/RN) |
+| DOC-20 | Alvará sanitário | Anual |
+| DOC-21 | Limpeza da caixa d'água | Semestral |
+| DOC-22 | Dedetização | A cada 3 meses |
+| DOC-23 | PCMSO (Programa de Controle Médico de Saúde Ocupacional) | Anual |
+| DOC-24 | PGR (Programa de Gerenciamento de Riscos) | A cada 2 anos |
+| DOC-25 | LTCAT | Sem validade (aditivo quando houver alteração) |
+| DOC-26 | IPTU | Anual |
 
-### 5.9 Pedidos e compras
-
-| ID | Requisito | Prior. |
+| ID | Requisito | Prioridade |
 | --- | --- | --- |
-| PED-01 | Sugestão automática de compra com base em giro médio, estoque atual, estoque mínimo e prazo de entrega do fornecedor. | Alta |
-| PED-02 | Pedido de combustível: sugestão por tanque considerando cobertura, capacidade livre (ullage) e melhor janela de descarga. | Alta |
-| PED-03 | Cotação entre fornecedores e registro do vencedor. | Média |
-| PED-04 | Fluxo de aprovação de pedidos por valor. | Média |
-| PED-05 | Acompanhamento do pedido (emitido, confirmado, faturado, entregue) e vínculo com a NF de entrada. | Alta |
-| PED-06 | Compras de uniformes e EPI a partir das necessidades geradas pelo RH. | Média |
-| PED-07 | Histórico de preços pagos por fornecedor e item. | Média |
+| DOC-27 | Renovação em etapas (juntar documentos, protocolar, pagar taxa, aguardar emissão), com protocolo, custo e anexos por etapa; ao concluir, o vencimento é atualizado. | Alta |
+| DOC-28 | Histórico de renovações e custo por documento e por ano. | Média |
+| DOC-29 | Cadastro de novos documentos pela equipe, além da lista acima. | Alta |
 
-### 5.10 Painel gerencial e alertas
+### 6.3 Cursos, treinamentos e exames
 
-| ID | Requisito | Prior. |
+Controle por funcionário, com data de realização, validade, certificado anexado e aviso de vencimento (RC-04).
+
+| ID | Item | Para quem | Periodicidade |
+| --- | --- | --- | --- |
+| TRE-01 | Boas Práticas de Manipulação em Serviços de Alimentação | Conveniência | Anual |
+| TRE-02 | NR-20 | Frentistas e chefe de pista | A cada 2 anos |
+| TRE-03 | ASO | Administrativo e conveniência | Anual |
+| TRE-04 | ASO | Frentistas e chefe de pista | Semestral |
+
+| ID | Requisito | Prioridade |
 | --- | --- | --- |
-| PNL-01 | Dashboard inicial: vendas do dia (litros e R$), margem, caixa, nível dos tanques, pendências e vencimentos. | Alta |
-| PNL-02 | Central de alertas unificada com prioridade e responsável (tanque baixo, LMC fora da tolerância, documento a vencer, título vencendo, escala descoberta, EPI vencido). | Alta |
-| PNL-03 | Notificações por app, e-mail e WhatsApp (configurável por perfil). | Média |
-| PNL-04 | Relatórios exportáveis em PDF e Excel em todos os módulos. | Alta |
-| PNL-05 | Comparativo de períodos (dia, semana, mês, ano anterior). | Média |
+| TRE-05 | Cadastro de funcionários com função (frentista, chefe de pista, conveniência, administrativo); a função define quais cursos e exames são exigidos e com que periodicidade. | Alta |
+| TRE-06 | Painel por funcionário: o que está em dia, o que vence em breve e o que está vencido. | Alta |
 
-## 6. Integrações
+### 6.4 Conveniência
 
-| Sistema | Dados trocados | Fase |
+| ID | Requisito | Prioridade |
 | --- | --- | --- |
-| Linx / Webposto (ERP/PDV) | Vendas por bico/produto/turno, encerrantes, cadastro de produtos, vendas da conveniência, notas emitidas. | 1 |
-| Bancos (OFX/CNAB ou API) | Extratos, boletos, PIX recebidos. | 1 |
-| Adquirentes de cartão | Vendas, recebíveis, taxas, chargebacks, antecipações. | 1 |
-| SEFAZ / XML de NF-e | Importação de notas de entrada (combustível e mercadorias). | 1 |
-| Relógio de ponto | Marcações de ponto (arquivo AFD ou API). | 1 |
-| Contabilidade | Pacote mensal (exportação de arquivos ou portal). | 2 |
-| Automação de pista / sondas de tanque | Encerrantes e níveis em tempo real. | 3 |
-| WhatsApp / e-mail | Envio de alertas e comunicados. | 2 |
+| CONV-01 | **Controle diário de temperatura dos 9 equipamentos** (geladeiras, freezers e expositores): cadastro dos equipamentos com faixa de temperatura aceitável, registro diário e alerta quando a leitura sair da faixa ou não for feita. | Alta |
+| CONV-02 | **Manutenção do ar-condicionado:** registro de manutenção (RC-02). | Média |
+| CONV-03 | **Contagem diária de itens:** registro da contagem por item ou departamento, com comparação com o estoque do sistema quando disponível. | Alta |
+| CONV-04 | **Controle de validade:** registro de produtos com data de validade e alerta dos que estão perto de vencer. | Alta |
+| CONV-05 | **Pedido:** registro dos pedidos feitos a cada fornecedor (data, fornecedor, itens) e da mercadoria recebida. | Média |
+| CONV-06 | **Checklist diário da conveniência** (substitui a folha "Checklist Conveniência"): pedidos e recebimentos do dia, perguntas de sim/não da operação e da manutenção da loja, avariados/vencidos, trocas, contagens, fotos do que foi feito, o que precisa ser feito e códigos de barras lidos pela câmera, cada um marcado como transferir, nota de devolução ou ajuste (com qual ajuste). Detalhe completo em `docs/sia/combinado.md`. | Alta |
+| CONV-07 | **Pendências da gerente:** lista única dos códigos a transferir, a emitir nota de devolução e a ajustar, e do "o que precisa ser feito" de cada checklist, com baixa item a item (quem resolveu e quando) e opção de reabrir. | Alta |
+
+### 6.5 Administrativo e financeiro
+
+| ID | Requisito | Prioridade |
+| --- | --- | --- |
+| FIN-01 | **LMC diário** por produto: estoque de abertura, recebimentos, vendas, estoque de fechamento e perdas/sobras, com impressão para fiscalização. | Alta |
+| FIN-02 | **Empréstimos concedidos pela Migra:** cadastro de cada tomador (hoje XP, Posto Amigo e RA) com valor emprestado, pagamentos recebidos e saldo atual; total geral em aberto. | Alta |
+| FIN-03 | **Empréstimos tomados pela Migra:** por credor (hoje Transcopel), lançamentos de entrada e de pagamento com data e valor, situação de cada lançamento (em aberto / pago) e saldo devedor atualizado. | Alta |
+| FIN-04 | Importação dos saldos e lançamentos das planilhas atuais de empréstimos, para que o histórico não se perca. | Alta |
+| FIN-05 | **Vendas de combustível:** valor e litros vendidos por dia, produto e período. | Alta |
+| FIN-06 | **Margem** por produto e por período (preço de venda menos custo). | Alta |
+| FIN-07 | **Conferência do contas a pagar** entre o sistema (Linx/Webposto) e o DDA do Banco do Brasil, apontando boletos que estão num e não no outro, ou com valor ou vencimento diferente. | Alta |
+| FIN-08 | **Planilha de valores pagos à Migra:** registro dos pagamentos com data, valor e origem, e total por período. | Média |
+| FIN-09 | **Quantidade de litros vendidos** por produto, por dia e acumulada no mês. | Alta |
+
+### 6.6 RH
+
+| ID | Requisito | Prioridade |
+| --- | --- | --- |
+| RH-01 | **Escala** de trabalho por funcionário e turno. | Alta |
+| RH-02 | **Folgas:** registro e controle de folgas, ligado à escala. | Alta |
+| RH-03 | **Férias:** período aquisitivo, data de vencimento e programação de férias. | Alta |
+| RH-04 | **Atestados:** registro com data, dias de afastamento e anexo. | Alta |
+| RH-05 | **Faltas sem justificativa:** registro por funcionário e total no período. | Alta |
+| RH-06 | **Hora extra:** registro e total por funcionário e período. | Alta |
+| RH-07 | **Produtividade dos funcionários:** indicadores por funcionário (a definir com a gerência: por exemplo, vendas, litros, rotinas cumpridas). | Média |
+
+### 6.7 Painel
+
+| ID | Requisito | Prioridade |
+| --- | --- | --- |
+| PAI-01 | Tela inicial com as rotinas do dia: o que já foi feito, o que falta e o que está atrasado, por módulo. | Alta |
+| PAI-02 | Vencimentos de documentos, licenças, cursos e exames nos próximos 90 dias. | Alta |
+| PAI-03 | Pendências abertas (conveniência, chamados de bomba, alertas de temperatura). | Alta |
+| PAI-04 | Resumo financeiro para a diretoria: vendas, litros, margem e saldo dos empréstimos. | Média |
 
 ## 7. Requisitos não funcionais
 
-| Categoria | Requisito |
+- **Celular primeiro:** todos os formulários de rotina são preenchidos pelo celular, na pista ou na loja, com câmera para fotos e leitura de código de barras.
+- **Acesso por login:** só a equipe logada vê os dados. Arquivos e fotos ficam em armazenamento fechado, abertos por link temporário.
+- **Rastro e guarda:** registros exigidos pela ANP, IPEM e Bombeiros não podem ser apagados e ficam guardados por pelo menos 5 anos.
+- **Impressão:** os formulários oficiais saem em PDF no layout do papel.
+- **Sem retrabalho com o Linx/Webposto:** o sistema não substitui o PDV/ERP fiscal. Quando os dados existirem lá (vendas, estoque, contas a pagar), a meta é importar, e não redigitar.
+
+## 8. Ordem de entrega
+
+Proposta, a validar com a gerência.
+
+| Fase | Conteúdo |
 | --- | --- |
-| Plataforma | Web responsiva para escritório; app (ou PWA) para pista, loja e colaboradores; funcionamento offline para checklists e contagem, com sincronização. |
-| Segurança | Login individual, senha forte e autenticação em dois fatores para perfis gerenciais; permissões por perfil; trilha de auditoria de todas as alterações. |
-| LGPD | Dados pessoais e de saúde (atestados) com acesso restrito, base legal registrada, política de retenção e exclusão. |
-| Desempenho | Telas principais carregam em até 3 segundos; importações diárias processadas em até 5 minutos. |
-| Disponibilidade | 99,5% ao mês; backup diário com retenção mínima de 5 anos para documentos fiscais e LMC. |
-| Usabilidade | Telas de pista com poucos campos e botões grandes; linguagem do dia a dia do posto; tudo em português. |
-| Escalabilidade | Suporte a mais de uma unidade (multi-posto) sem retrabalho de cadastro. |
-| Rastreabilidade | Nenhum registro financeiro, de estoque ou de LMC pode ser apagado, apenas estornado com justificativa. |
+| 1 | Documentos e licenças (DOC) com os prazos de Natal/RN; cursos, treinamentos e exames (TRE); checklist e pendências da conveniência (CONV-06, CONV-07); painel de vencimentos (PAI-02). |
+| 2 | Registros da ANP na pista (PIS-01 a PIS-09); manutenções (PIS-18 a PIS-21); temperatura, contagem e validade da conveniência (CONV-01, CONV-03, CONV-04); painel de rotinas do dia (PAI-01, PAI-03); perfis de acesso por função. |
+| 3 | Pesquisa de preço, inspeções, trocas e limpezas (PIS-10 a PIS-17); estoque de combustíveis (PIS-22, PIS-23); administrativo e financeiro (FIN); RH. |
 
-## 8. Indicadores de sucesso (KPIs)
+## 9. Pontos a confirmar
 
-| Área | Indicador |
-| --- | --- |
-| Pista | Litros vendidos/dia, venda por frentista, diferença de caixa por turno, % aditivados. |
-| Combustíveis | Perdas/sobras (% do volume), margem bruta por litro, dias de cobertura, rupturas. |
-| RH | Absenteísmo, horas extras, turnover, % escalas cobertas, EPIs em dia. |
-| Licenças | % documentos em dia, renovações iniciadas no prazo. |
-| Financeiro | Saldo de caixa, prazo médio de recebimento, taxa média de cartão, inadimplência, diferenças de conciliação. |
-| Conveniência | Faturamento, margem, ticket médio, perdas por avaria/validade (% das vendas). |
-| Estoques e compras | Acuracidade de inventário, giro, ruptura, economia em cotações. |
+1. Periodicidade em Natal/RN do Alvará de Funcionamento e Localização, da Licença de Operação, dos laudos de aferição do IPEM (bombas e GNV) e do RAPP. Ver tabela abaixo.
+2. Faixa de temperatura aceitável de cada um dos 9 equipamentos da conveniência.
+3. Tolerância aceita na vazão da proveta (aferição) para gerar alerta.
+4. Quais tanques são de diesel e entram na drenagem quinzenal, e a capacidade de cada um.
+5. Indicadores de produtividade dos funcionários (RH-07).
+6. O que a "planilha de valores pagos à Migra" registra hoje (origem dos pagamentos).
 
-## 9. Roadmap de entregas
+### Prazos pesquisados (19/10/2026)
 
-| Fase | Conteúdo | Prazo indicativo |
-| --- | --- | --- |
-| Fase 1 – MVP | Pista (turno e caixa), Combustíveis/LMC, Licenças e alvarás, Financeiro (pagar/receber e conciliações), Painel e alertas básicos, integração Linx/Webposto, bancos e cartões. | 3 a 4 meses |
-| Fase 2 | RH completo (ponto, escalas, atestados, EPI, advertências), Conveniência, Estoques, Pedidos e compras, pacote para a contabilidade. | +3 meses |
-| Fase 3 | Automação de pista e sondas, DRE gerencial avançado, multi-posto, metas e comissões, promoções, BI. | +3 a 6 meses |
+Busca feita na internet. Poucos prazos foram confirmados em fonte oficial. Até virem as respostas por escrito dos órgãos, o sistema usa a periodicidade informada pelo posto e deixa o vencimento editável.
 
-**Critério de aceite geral de cada fase:** rotina executada por 30 dias no sistema, sem planilha paralela, com validação da gerência e do contador.
+| Item | O que foi encontrado | Confiança | Próximo passo |
+| --- | --- | --- | --- |
+| Alvará de Funcionamento e Localização | Emitido pela SEMURB (Prefeitura do Natal). Validade não encontrada. | Baixa | Perguntar à SEMURB |
+| Licença de Operação (LO) | Provavelmente emitida pelo IDEMA/RN. Validade não encontrada. Pela Res. CONAMA 237/1997, a renovação deve ser pedida 120 dias antes do vencimento. | Baixa | Conferir na própria LO e com o IDEMA |
+| RAPP (IBAMA) | Anual, entregue entre 1º/02 e 31/03, sobre o ano anterior (Lei 6.938/1981). | Média | Usar 31/03 como vencimento |
+| Certificado de Regularidade (IBAMA) | Validade de 3 meses não confirmada em norma federal (aparece em norma do Pará). | Baixa | Conferir no próprio certificado |
+| Aferição das bombas (IPEM-RN/Inmetro) | Verificação anual, segundo o IPEM. Nova verificação obrigatória após reparo (Portaria Inmetro 227/2022, alterada pela 516/2023). | Média | Usar anual |
+| Aferição do GNV (IPEM-RN) | O IPEM-RN fiscaliza dispensers de GNV. Portaria e intervalo não encontrados. | Baixa | Perguntar ao IPEM-RN |
+| Alvará sanitário (Natal) | Nenhuma fonte de Natal encontrada. | Baixa | Perguntar à Vigilância Sanitária de Natal |
+| AVCB (CBMRN) | Validade não encontrada. | Baixa | Conferir no próprio certificado |
+| Autorização da ANP | Nenhuma indicação de vencimento. Exige manter os requisitos em dia, inclusive a licença ambiental (Res. ANP 948/2023). | Baixa | Conferir na cartilha da ANP para postos |
+| Drenagem do diesel | Semanal como regra. Quinzenal só com medição diária de água, e drenagem imediata se houver água livre (Res. ANP 968/2024). Artigo e exigência de registro não confirmados. | Média-baixa | Conferir o texto consolidado no site da ANP |
+| Análise no recebimento | Amostra-testemunha por compartimento do caminhão e "Registro de Análise da Qualidade", aparentemente pela Res. ANP 898/2022. Prazo de guarda não confirmado. | Média | Conferir com a ANP ou a distribuidora |
 
-## 10. Riscos e premissas
-
-| Risco | Mitigação |
-| --- | --- |
-| Integração com o Linx/Webposto limitada ou paga | Validar API/exportações disponíveis antes do desenvolvimento; plano B por importação de arquivos. |
-| Resistência da equipe de pista ao novo processo | App simples, treinamento curto por turno, implantação gradual. |
-| Exigências regulatórias variam por município/estado | Lista de licenças configurável e validada com contador e órgãos locais. |
-| Dados de adquirentes em formatos diferentes | Camada de importação por adquirente; começar pelos de maior volume. |
-| Dados sensíveis de colaboradores (LGPD) | Acesso restrito, criptografia e política de retenção definidas desde o MVP. |
-
-**Premissas:** internet estável no posto; ERP atual continua responsável pela parte fiscal; colaboradores com celular para uso do app (ou tablet compartilhado na pista).
-
-## 11. Glossário
+## 10. Glossário
 
 | Termo | Significado |
 | --- | --- |
-| LMC | Livro de Movimentação de Combustíveis: registro diário obrigatório de estoque, entradas, vendas e perdas/sobras por produto. |
-| Encerrante | Totalizador da bomba que acumula o volume vendido por bico. |
-| Arqueação | Tabela que converte a medida da régua (cm) em volume (litros) de cada tanque. |
-| Ullage | Espaço livre no tanque disponível para receber combustível. |
-| GNV | Gás Natural Veicular. |
-| EPI / CA | Equipamento de Proteção Individual / Certificado de Aprovação do EPI. |
+| ANP | Agência Nacional do Petróleo, Gás Natural e Biocombustíveis. |
+| AEHC | Álcool etílico hidratado combustível (etanol). |
 | ASO | Atestado de Saúde Ocupacional. |
-| Curva ABC | Classificação de produtos pela participação no faturamento. |
-| Conciliação | Conferência entre o que o sistema registrou e o que efetivamente entrou ou saiu (banco, cartões). |
+| AVCB | Auto de Vistoria do Corpo de Bombeiros. |
+| B1…B16 | Número do bico. S10 = diesel S10; DC = diesel comum (S500); GC = gasolina comum; GA = gasolina aditivada; Eta = etanol. |
+| DDA | Débito Direto Autorizado: boletos registrados no CPF/CNPJ, consultados no banco. |
+| Encerrante | Contador acumulado da bomba, usado para calcular o volume vendido. |
+| GNV | Gás natural veicular. |
+| IPEM | Instituto de Pesos e Medidas, que faz a verificação das bombas pelo Inmetro. |
+| LMC | Livro de Movimentação de Combustíveis. |
+| LO | Licença de Operação ambiental. |
+| LTCAT | Laudo Técnico das Condições Ambientais do Trabalho. |
+| PCMSO | Programa de Controle Médico de Saúde Ocupacional. |
+| PGR | Programa de Gerenciamento de Riscos. |
+| RAPP | Relatório Anual de Atividades Potencialmente Poluidoras (IBAMA). |
+| SPDA | Sistema de Proteção contra Descargas Atmosféricas (para-raios). |
+| Sump | Câmara de contenção sob a bomba, que evita vazamento para o solo. |
+| Veeder Root | Sistema de medição automática dos tanques. |
