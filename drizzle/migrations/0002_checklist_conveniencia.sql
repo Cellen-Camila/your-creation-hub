@@ -5,7 +5,8 @@
 -- Um checklist por envio. As nove perguntas são obrigatórias (NOT NULL) e cada uma tem observação.
 CREATE TABLE public.checklists (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  data date NOT NULL CHECK (data <= current_date),                -- nunca futura
+  -- Nunca futura, no fuso de Natal (Fortaleza, UTC-3, sem horário de verão): current_date usaria o fuso do servidor (UTC).
+  data date NOT NULL CHECK (data <= (now() AT TIME ZONE 'America/Fortaleza')::date),
   funcionaria text NOT NULL CHECK (btrim(funcionaria) <> ''),
   -- Operacional
   produto_sem_cadastro boolean NOT NULL,
@@ -75,15 +76,20 @@ CREATE INDEX checklist_codigos_checklist ON public.checklist_codigos (checklist_
 CREATE INDEX checklist_codigos_pendentes ON public.checklist_codigos (providencia) WHERE resolvido_em IS NULL;
 
 -- Grava checklist + fotos + códigos numa transação só: se qualquer CHECK falhar, nada fica gravado.
--- SECURITY INVOKER: roda com as permissões (e a RLS) de quem chamou.
+-- É o ÚNICO caminho de inserção: authenticated não tem INSERT nas tabelas (ver GRANTs abaixo).
+-- SECURITY DEFINER é seguro aqui: não usa SQL dinâmico, o search_path é fixo (public, pg_temp) e a função
+-- só insere em 3 tabelas conhecidas. O dono é o papel que roda a migração (padrão, não alterado).
+-- Autoria é do banco: enviado_por = auth.uid(); resolvido_* e a_fazer_resolvido_* NUNCA vêm do payload.
 -- Pergunta ausente ou null vira NULL e o NOT NULL da coluna recusa.
 CREATE OR REPLACE FUNCTION public.enviar_checklist(p jsonb)
-RETURNS uuid LANGUAGE plpgsql SECURITY INVOKER SET search_path = public AS $$
+RETURNS uuid LANGUAGE plpgsql SECURITY DEFINER SET search_path = public, pg_temp AS $$
 DECLARE
   v_id uuid;
   f jsonb;
   c jsonb;
 BEGIN
+  IF auth.uid() IS NULL THEN RAISE EXCEPTION 'Sem login'; END IF;
+
   INSERT INTO checklists (
     data, funcionaria,
     produto_sem_cadastro, produto_sem_cadastro_obs,
@@ -96,7 +102,7 @@ BEGIN
     freezers_organizados, freezers_organizados_obs,
     material_abastecido, material_abastecido_obs,
     pedidos_fornecedor, mercadoria_recebida, avariados_vencidos, mercadorias_trocadas,
-    contagens, outras_informacoes, a_fazer
+    contagens, outras_informacoes, a_fazer, enviado_por
   ) VALUES (
     (p->>'data')::date, p->>'funcionaria',
     (p->>'produto_sem_cadastro')::boolean, p->>'produto_sem_cadastro_obs',
@@ -109,7 +115,7 @@ BEGIN
     (p->>'freezers_organizados')::boolean, p->>'freezers_organizados_obs',
     (p->>'material_abastecido')::boolean, p->>'material_abastecido_obs',
     p->>'pedidos_fornecedor', p->>'mercadoria_recebida', p->>'avariados_vencidos', p->>'mercadorias_trocadas',
-    p->>'contagens', p->>'outras_informacoes', p->>'a_fazer'
+    p->>'contagens', p->>'outras_informacoes', p->>'a_fazer', auth.uid()
   ) RETURNING id INTO v_id;
 
   FOR f IN SELECT * FROM jsonb_array_elements(coalesce(p->'fotos', '[]'::jsonb)) LOOP
@@ -131,23 +137,31 @@ ALTER TABLE public.checklist_codigos ENABLE ROW LEVEL SECURITY;
 
 REVOKE ALL ON public.checklists, public.checklist_fotos, public.checklist_codigos FROM PUBLIC, anon, authenticated;
 
-GRANT SELECT, INSERT ON public.checklists, public.checklist_fotos, public.checklist_codigos TO authenticated;
+-- Só leitura direta. INSERT só pela função enviar_checklist.
+GRANT SELECT ON public.checklists, public.checklist_fotos, public.checklist_codigos TO authenticated;
 -- UPDATE só nas colunas de baixa. Nenhum DELETE para ninguém (exceto service_role).
 GRANT UPDATE (resolvido_em, resolvido_por) ON public.checklist_codigos TO authenticated;
 GRANT UPDATE (a_fazer_resolvido_em, a_fazer_resolvido_por) ON public.checklists TO authenticated;
 GRANT ALL ON public.checklists, public.checklist_fotos, public.checklist_codigos TO service_role;
 
 CREATE POLICY "Equipe lê" ON public.checklists FOR SELECT TO authenticated USING (true);
--- Autoria presa ao login: ninguém grava enviado_por nem a baixa em nome de outra pessoa.
-CREATE POLICY "Equipe cria" ON public.checklists FOR INSERT TO authenticated WITH CHECK (enviado_por = auth.uid());
 CREATE POLICY "Equipe dá baixa" ON public.checklists FOR UPDATE TO authenticated USING (true)
   WITH CHECK (a_fazer_resolvido_por IS NULL OR a_fazer_resolvido_por = auth.uid());
 CREATE POLICY "Equipe lê" ON public.checklist_fotos FOR SELECT TO authenticated USING (true);
-CREATE POLICY "Equipe cria" ON public.checklist_fotos FOR INSERT TO authenticated WITH CHECK (true);
 CREATE POLICY "Equipe lê" ON public.checklist_codigos FOR SELECT TO authenticated USING (true);
-CREATE POLICY "Equipe cria" ON public.checklist_codigos FOR INSERT TO authenticated WITH CHECK (true);
 CREATE POLICY "Equipe dá baixa" ON public.checklist_codigos FOR UPDATE TO authenticated USING (true)
   WITH CHECK (resolvido_por IS NULL OR resolvido_por = auth.uid());
 
 REVOKE EXECUTE ON FUNCTION public.enviar_checklist(jsonb) FROM PUBLIC, anon;
 GRANT EXECUTE ON FUNCTION public.enviar_checklist(jsonb) TO authenticated;
+
+-- Storage: as fotos do checklist (conveniencia/) não podem ser alteradas nem apagadas.
+-- A 0000 liberava UPDATE e DELETE no bucket inteiro; aqui recria as duas sem a pasta conveniencia/.
+-- INSERT e SELECT continuam como na 0000.
+DROP POLICY IF EXISTS "Equipe atualiza arquivos" ON storage.objects;
+DROP POLICY IF EXISTS "Equipe remove arquivos" ON storage.objects;
+CREATE POLICY "Equipe atualiza arquivos" ON storage.objects FOR UPDATE TO authenticated
+  USING (bucket_id = 'documentos' AND name NOT LIKE 'conveniencia/%')
+  WITH CHECK (bucket_id = 'documentos' AND name NOT LIKE 'conveniencia/%');
+CREATE POLICY "Equipe remove arquivos" ON storage.objects FOR DELETE TO authenticated
+  USING (bucket_id = 'documentos' AND name NOT LIKE 'conveniencia/%');
