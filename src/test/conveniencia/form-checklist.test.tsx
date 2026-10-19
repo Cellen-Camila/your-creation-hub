@@ -61,7 +61,8 @@ beforeEach(() => {
 });
 afterEach(cleanup);
 
-describe("FormChecklist", () => {
+// Preencher o formulário inteiro no jsdom leva ~4s numa máquina de 2 núcleos; em paralelo com a suíte passava dos 5s padrão.
+describe("FormChecklist", { timeout: 20_000 }, () => {
   it("envia nove respostas, 2 fotos e 3 códigos (prova 1)", async () => {
     montar();
     fireEvent.change(nome(), { target: { value: "Maria" } });
