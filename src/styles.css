@@ -72,13 +72,13 @@
   --border: oklch(0.88 0.018 245);
   --input: oklch(0.88 0.018 245);
   --ring: oklch(0.7 0.16 76);
-  --ok: oklch(0.52 0.12 155);
+  --ok: oklch(0.5 0.12 155);
   --ok-soft: oklch(0.93 0.05 155);
-  --warn: oklch(0.6 0.15 65);
+  --warn: oklch(0.52 0.15 65);
   --warn-soft: oklch(0.94 0.07 80);
-  --late: oklch(0.55 0.2 28);
+  --late: oklch(0.52 0.2 28);
   --late-soft: oklch(0.93 0.05 28);
-  --info: oklch(0.55 0.13 235);
+  --info: oklch(0.5 0.13 235);
   --info-soft: oklch(0.93 0.04 235);
   --ink: oklch(0.25 0.075 255);
   --ink-foreground: oklch(0.98 0.005 245);

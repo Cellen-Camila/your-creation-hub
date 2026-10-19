@@ -4,6 +4,7 @@ import {
   type CodigoLinha,
   PERGUNTAS,
   agruparPendencias,
+  estaAberto,
   checklistSchema,
   codigoSchema,
   hojeISO,
@@ -266,5 +267,14 @@ describe("agruparPendencias", () => {
   it("ignora código de checklist desconhecido", () => {
     const g = agruparPendencias([co({ id: "z", checklist_id: "nao-existe" })], checklists);
     expect(g.transferir).toEqual([]);
+  });
+});
+
+describe("estaAberto", () => {
+  it("código ou 'a fazer' sem baixa está aberto; com baixa, não", () => {
+    expect(estaAberto({ resolvido_em: null })).toBe(true);
+    expect(estaAberto({ resolvido_em: "2026-10-19T10:00:00Z" })).toBe(false);
+    expect(estaAberto({ a_fazer_resolvido_em: null })).toBe(true);
+    expect(estaAberto({ a_fazer_resolvido_em: "2026-10-19T10:00:00Z" })).toBe(false);
   });
 });

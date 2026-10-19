@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { PERGUNTAS } from "@/lib/checklist";
 
@@ -10,6 +10,7 @@ const store: Record<string, Linha[]> = {
   checklist_fotos: [],
 };
 let falhaLeitura: unknown = null;
+let falhaFotos: unknown = null;
 const createSignedUrl = vi.fn();
 
 vi.mock("@/integrations/supabase/client", () => ({
@@ -24,10 +25,14 @@ vi.mock("@/integrations/supabase/client", () => ({
         return {
           order: res,
           eq: (_c: string, v: unknown) =>
-            Promise.resolve({
-              data: store[tabela]!.filter((x) => x["checklist_id"] === v),
-              error: null,
-            }),
+            Promise.resolve(
+              falhaFotos
+                ? { data: null, error: falhaFotos }
+                : {
+                    data: store[tabela]!.filter((x) => x["checklist_id"] === v),
+                    error: null,
+                  },
+            ),
           then: (f: never, r: never) => res().then(f, r),
         };
       },
@@ -86,6 +91,7 @@ beforeEach(() => {
   store["checklist_codigos"] = [];
   store["checklist_fotos"] = [];
   falhaLeitura = null;
+  falhaFotos = null;
   createSignedUrl
     .mockReset()
     .mockResolvedValue({ data: { signedUrl: "https://x/foto" }, error: null });
@@ -159,11 +165,33 @@ describe("Historico", () => {
     expect(within(painel).queryByText("Pedidos realizados ao fornecedor")).not.toBeInTheDocument();
     expect(within(painel).getByText("Trocar lâmpada")).toBeInTheDocument();
     expect(within(painel).getByText("7891234567890")).toBeInTheDocument();
-    const foto = await within(painel).findByRole("button", { name: /Abrir foto a\.png/ });
+    const foto = await within(painel).findByRole("link", { name: /Abrir foto a\.png/ });
     expect(createSignedUrl).toHaveBeenCalledWith("conveniencia/e/0-a.png", 120);
-    const abrir = vi.spyOn(window, "open").mockImplementation(() => null);
-    fireEvent.click(foto);
-    await vi.waitFor(() => expect(abrir).toHaveBeenCalledWith("https://x/foto", "_blank"));
+    expect(foto).toHaveAttribute("href", "https://x/foto");
+    expect(foto).toHaveAttribute("target", "_blank");
+    expect(foto).toHaveAttribute("rel", expect.stringContaining("noopener"));
+  });
+
+  it("falha ao buscar as fotos avisa em vez de sumir", async () => {
+    store["checklists"] = [cl("a")];
+    falhaFotos = { message: "boom" };
+    montar();
+    fireEvent.click((await screen.findByText("Maria")).closest("button")!);
+    const painel = await screen.findByRole("dialog");
+    expect(
+      await within(painel).findByText("Não foi possível carregar as fotos."),
+    ).toBeInTheDocument();
+  });
+
+  it("enquanto as fotos carregam mostra esqueleto", async () => {
+    store["checklists"] = [cl("a")];
+    montar();
+    fireEvent.click((await screen.findByText("Maria")).closest("button")!);
+    const painel = await screen.findByRole("dialog");
+    expect(within(painel).getByLabelText("Carregando fotos")).toBeInTheDocument();
+    await waitFor(() =>
+      expect(within(painel).queryByLabelText("Carregando fotos")).not.toBeInTheDocument(),
+    );
   });
 
   it("erro mostra faixa e tabela ausente avisa o banco", async () => {

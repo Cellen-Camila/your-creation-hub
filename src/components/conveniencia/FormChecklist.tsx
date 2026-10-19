@@ -18,11 +18,11 @@ import {
   type ChecklistValido,
 } from "@/lib/checklist";
 import { enviarChecklist, tabelaAusente } from "@/lib/conveniencia";
-import { CodigosChecklist, type CodigoForm } from "./CodigosChecklist";
+import { CodigosChecklist, type CodigoForm, type CodigosHandle } from "./CodigosChecklist";
+import { MSG_SEM_TABELA } from "./Estados";
 import { FotosChecklist } from "./FotosChecklist";
 
 const MSG_ERRO = "Não foi possível enviar. Nada foi gravado. Tente de novo.";
-const MSG_SEM_TABELA = "O banco ainda não foi atualizado. Avise a gerência.";
 
 const campoClass = "text-base md:text-sm";
 // Glow da marca (visual.md, brand-glow) a partir de --primary.
@@ -71,11 +71,14 @@ export function FormChecklist() {
     defaultValues: valoresIniciais(),
   });
   const { register, control, handleSubmit, reset, formState } = form;
-  const { errors } = formState;
+  const { errors, submitCount } = formState;
   const [fotos, setFotos] = useState<File[]>([]);
   const [enviando, setEnviando] = useState(false);
   const [falha, setFalha] = useState<string | null>(null);
   const trava = useRef(false);
+  const codigos = useRef<CodigosHandle>(null);
+  // Muda após o envio: recria o bloco de códigos e descarta o rascunho dele.
+  const [versao, setVersao] = useState(0);
 
   const texto = (nome: CampoTexto, rotulo: string) => (
     <div className="space-y-1.5">
@@ -106,7 +109,7 @@ export function FormChecklist() {
               onValueChange={(v) => field.onChange(v === "sim")}
             >
               <div className="flex items-center gap-2">
-                <RadioGroupItem id={`${rid}-sim`} value="sim" />
+                <RadioGroupItem ref={field.ref} id={`${rid}-sim`} value="sim" />
                 <Label htmlFor={`${rid}-sim`}>Sim</Label>
               </div>
               <div className="flex items-center gap-2">
@@ -129,6 +132,7 @@ export function FormChecklist() {
   };
 
   const aoEnviar = handleSubmit(async (valido) => {
+    setEnviando(true);
     setFalha(null);
     try {
       await enviarChecklist(valido, fotos);
@@ -140,6 +144,7 @@ export function FormChecklist() {
     toast.success("Checklist enviado");
     reset(valoresIniciais());
     setFotos([]);
+    setVersao((v) => v + 1);
     void qc.invalidateQueries({ queryKey: ["checklists"] });
     void qc.invalidateQueries({ queryKey: ["checklist_codigos"] });
   });
@@ -147,8 +152,8 @@ export function FormChecklist() {
   async function submeter(e: React.FormEvent) {
     e.preventDefault();
     if (trava.current) return;
+    if (codigos.current && !codigos.current.verificarRascunho()) return;
     trava.current = true;
-    setEnviando(true);
     try {
       await aoEnviar();
     } finally {
@@ -159,6 +164,7 @@ export function FormChecklist() {
 
   const erroData = errors.data?.message;
   const erroNome = errors.funcionaria?.message;
+  const nErros = Object.keys(errors).length;
 
   return (
     <form onSubmit={submeter} noValidate className="space-y-4">
@@ -223,6 +229,8 @@ export function FormChecklist() {
           name="codigos"
           render={({ field }) => (
             <CodigosChecklist
+              key={versao}
+              ref={codigos}
               value={(field.value ?? []) as CodigoForm[]}
               onChange={field.onChange}
               disabled={enviando}
@@ -237,6 +245,15 @@ export function FormChecklist() {
           className="rounded-lg border border-late/50 bg-late-soft px-4 py-3 text-sm text-late"
         >
           {falha}
+        </div>
+      )}
+
+      {submitCount > 0 && nErros > 0 && (
+        <div
+          role="alert"
+          className="rounded-lg border border-late/50 bg-late-soft px-4 py-3 text-sm font-medium text-late"
+        >
+          {nErros === 1 ? "Há 1 campo para corrigir" : `Há ${nErros} campos para corrigir`}
         </div>
       )}
 

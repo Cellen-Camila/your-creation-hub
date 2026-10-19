@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { PERGUNTAS } from "@/lib/checklist";
+import { hojeISO, PERGUNTAS } from "@/lib/checklist";
 
 const upload = vi.fn();
 const rpc = vi.fn();
@@ -126,5 +126,66 @@ describe("FormChecklist", { timeout: 20_000 }, () => {
     adicionarCodigo("78A9", "transferir");
     expect(screen.getByText("Código só pode ter números")).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: /Remover código/ })).not.toBeInTheDocument();
+  });
+
+  it("código digitado e não adicionado bloqueia o envio e avisa junto ao campo", async () => {
+    montar();
+    fireEvent.change(nome(), { target: { value: "Maria" } });
+    responderTodas();
+    fireEvent.change(screen.getByLabelText("Código de barras"), { target: { value: "789" } });
+    enviar();
+    expect(
+      await screen.findByText("Toque em Adicionar código ou apague o campo"),
+    ).toBeInTheDocument();
+    await waitFor(() => expect(screen.getByLabelText("Código de barras")).toHaveFocus());
+    expect(rpc).not.toHaveBeenCalled();
+  });
+
+  it("pergunta sem resposta recebe foco e aparece o resumo perto do botão", async () => {
+    montar();
+    fireEvent.change(nome(), { target: { value: "Maria" } });
+    responderTodas("Loja limpa");
+    enviar();
+    const resumo = await screen.findByText("Há 1 campo para corrigir");
+    expect(resumo).toHaveAttribute("role", "alert");
+    const grupo = screen.getByRole("radiogroup", { name: "Loja limpa" });
+    await waitFor(() => expect(within(grupo).getByRole("radio", { name: "Sim" })).toHaveFocus());
+  });
+
+  it("banco sem a função avisa a gerência", async () => {
+    rpc.mockResolvedValue({ data: null, error: { code: "PGRST202", message: "x" } });
+    montar();
+    fireEvent.change(nome(), { target: { value: "Maria" } });
+    responderTodas();
+    enviar();
+    expect(
+      await screen.findByText("O banco ainda não foi atualizado. Avise a gerência."),
+    ).toBeInTheDocument();
+  });
+
+  it("depois do envio o formulário volta limpo por inteiro", async () => {
+    montar();
+    fireEvent.change(nome(), { target: { value: "Maria" } });
+    fireEvent.change(screen.getByLabelText("Data"), { target: { value: "2026-01-02" } });
+    responderTodas();
+    fireEvent.change(screen.getByLabelText("Arquivo de foto (galeria)"), {
+      target: { files: [foto("a.png")] },
+    });
+    adicionarCodigo("123", "devolucao");
+    // rascunho que não é código: providência, quantidade e ajuste
+    fireEvent.change(screen.getByLabelText("Providência"), { target: { value: "ajuste" } });
+    fireEvent.change(screen.getByLabelText("Quantidade"), { target: { value: "5" } });
+    fireEvent.change(screen.getByLabelText("Qual ajuste"), { target: { value: "Etiqueta" } });
+    enviar();
+    await waitFor(() => expect(rpc).toHaveBeenCalledTimes(1));
+    await waitFor(() => expect(nome()).toHaveValue(""));
+    expect(screen.getByLabelText("Data")).toHaveValue(hojeISO());
+    expect(screen.queryByRole("button", { name: /Remover código/ })).not.toBeInTheDocument();
+    expect(screen.getByLabelText("Código de barras")).toHaveValue("");
+    expect(screen.getByLabelText("Providência")).toHaveValue("transferir");
+    expect(screen.getByLabelText("Quantidade")).toHaveValue(1);
+    expect(screen.queryByLabelText("Qual ajuste")).not.toBeInTheDocument();
+    expect(screen.getByText("0 de 10 fotos")).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /Remover foto/ })).not.toBeInTheDocument();
   });
 });

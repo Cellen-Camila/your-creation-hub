@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { CheckCircle2, ChevronRight, ClipboardList, Clock, TriangleAlert } from "lucide-react";
+import { ChevronRight, ClipboardList, Clock } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -10,8 +10,8 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
-import { abrirArquivo } from "@/lib/arquivos";
 import {
+  estaAberto,
   maisRecente,
   PERGUNTAS,
   PROVIDENCIAS,
@@ -19,13 +19,11 @@ import {
   type CodigoLinha,
   type Providencia,
 } from "@/lib/checklist";
-import { dataHoraBR, useChecklists, useCodigos, useFotos } from "@/lib/conveniencia";
-import { fmt, parseDate } from "@/lib/docs";
+import { dataBR, dataHoraBR, useChecklists, useCodigos, useFotos } from "@/lib/conveniencia";
 import { Esqueleto, FaixaErro, Vazio } from "./Estados";
+import { SeloStatus } from "./SeloStatus";
 
 type Linha = Record<string, unknown> & ChecklistLinha;
-
-const dataBR = (iso: string) => fmt(parseDate(iso));
 
 const TEXTOS = [
   ["pedidos_fornecedor", "Pedidos realizados ao fornecedor"],
@@ -38,15 +36,11 @@ const TEXTOS = [
 
 function Situacao({ em }: { em: string | null }) {
   return em ? (
-    <span className="inline-flex items-center gap-1.5 rounded-md bg-ok-soft px-2 py-0.5 text-xs font-semibold text-ok">
-      <CheckCircle2 className="h-3.5 w-3.5" aria-hidden />
-      Resolvido em {dataHoraBR(em)}
-    </span>
+    <SeloStatus tipo="ok">Resolvido em {dataHoraBR(em)}</SeloStatus>
   ) : (
-    <span className="inline-flex items-center gap-1.5 rounded-md bg-warn-soft px-2 py-0.5 text-xs font-semibold text-warn">
-      <Clock className="h-3.5 w-3.5" aria-hidden />
+    <SeloStatus tipo="warn" icone={Clock}>
       Aberto
-    </span>
+    </SeloStatus>
   );
 }
 
@@ -61,27 +55,55 @@ function Miniatura({ path, nome }: { path: string; nome: string | null }) {
     },
   });
   const rotulo = nome ?? "foto";
-  return (
-    <button
-      type="button"
-      aria-label={`Abrir foto ${rotulo}`}
-      onClick={() => void abrirArquivo(path)}
-      className="aspect-square overflow-hidden rounded-lg border bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-    >
-      {url.data ? (
+  const caixa = "aspect-square overflow-hidden rounded-lg border bg-muted";
+  // Link direto com a URL já assinada: window.open depois de um await é bloqueado no Safari do iPhone.
+  if (url.data) {
+    return (
+      <a
+        href={url.data}
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label={`Abrir foto ${rotulo}`}
+        className={`block ${caixa} focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring`}
+      >
         <img src={url.data} alt="" className="h-full w-full object-cover" />
-      ) : url.isError ? (
+      </a>
+    );
+  }
+  return (
+    <div className={caixa}>
+      {url.isError ? (
         <span className="p-1 text-xs text-muted-foreground">Sem prévia</span>
       ) : (
         <Skeleton className="h-full w-full" />
       )}
-    </button>
+    </div>
   );
 }
 
 function Fotos({ checklistId }: { checklistId: string }) {
   const fotos = useFotos(checklistId);
-  if (!fotos.data || fotos.data.length === 0) return null;
+  if (fotos.isError) {
+    return (
+      <Secao titulo="Fotos">
+        <p role="alert" className="text-sm text-late">
+          Não foi possível carregar as fotos.
+        </p>
+      </Secao>
+    );
+  }
+  if (!fotos.data) {
+    return (
+      <Secao titulo="Fotos">
+        <div className="grid grid-cols-3 gap-2" aria-busy="true" aria-label="Carregando fotos">
+          <Skeleton className="aspect-square w-full" />
+          <Skeleton className="aspect-square w-full" />
+          <Skeleton className="aspect-square w-full" />
+        </div>
+      </Secao>
+    );
+  }
+  if (fotos.data.length === 0) return null;
   return (
     <Secao titulo="Fotos">
       <div className="grid grid-cols-3 gap-2">
@@ -199,7 +221,7 @@ export function Historico() {
     <>
       <ul className="space-y-2">
         {lista.map((c) => {
-          const n = todos.filter((k) => k.checklist_id === c.id && !k.resolvido_em).length;
+          const n = todos.filter((k) => k.checklist_id === c.id && estaAberto(k)).length;
           return (
             <li key={c.id}>
               <button
@@ -210,15 +232,9 @@ export function Historico() {
                 <span className="font-mono text-sm tabular-nums">{dataBR(c.data)}</span>
                 <span className="min-w-0 flex-1 truncate text-sm font-medium">{c.funcionaria}</span>
                 {n > 0 ? (
-                  <span className="inline-flex items-center gap-1.5 rounded-md bg-warn-soft px-2 py-0.5 text-xs font-semibold text-warn">
-                    <TriangleAlert className="h-3.5 w-3.5" aria-hidden />
-                    {n === 1 ? "1 aberto" : `${n} abertos`}
-                  </span>
+                  <SeloStatus tipo="warn">{n === 1 ? "1 aberto" : `${n} abertos`}</SeloStatus>
                 ) : (
-                  <span className="inline-flex items-center gap-1.5 rounded-md bg-ok-soft px-2 py-0.5 text-xs font-semibold text-ok">
-                    <CheckCircle2 className="h-3.5 w-3.5" aria-hidden />
-                    Tudo resolvido
-                  </span>
+                  <SeloStatus tipo="ok">Tudo resolvido</SeloStatus>
                 )}
                 <ChevronRight className="h-4 w-4 text-muted-foreground" aria-hidden />
               </button>

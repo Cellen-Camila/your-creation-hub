@@ -1,6 +1,7 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { nomeSeguro } from "@/lib/arquivos";
+import { fmt, parseDate } from "@/lib/docs";
 import {
   agruparPendencias,
   paraPayload,
@@ -130,6 +131,9 @@ export function useTotalAbertos(): number {
   const g = agruparPendencias(co.data as CodigoLinha[], cl.data as ChecklistLinha[]);
   return g.transferir.length + g.devolucao.length + g.ajuste.length + g.aFazer.length;
 }
+
+/** "dd/mm/aaaa" de uma data AAAA-MM-DD. */
+export const dataBR = (iso: string): string => fmt(parseDate(iso));
 
 /** "dd/mm/aaaa hh:mm" no horário local. */
 export function dataHoraBR(iso: string): string {

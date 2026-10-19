@@ -2,6 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { FormChecklist } from "@/components/conveniencia/FormChecklist";
 import { Pendencias } from "@/components/conveniencia/Pendencias";
 import { Historico } from "@/components/conveniencia/Historico";
+import { SeloStatus } from "@/components/conveniencia/SeloStatus";
 import { useTotalAbertos } from "@/lib/conveniencia";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -46,9 +47,9 @@ function Conveniencia() {
           <TabsTrigger value="pendencias" className="gap-2">
             Pendências
             {abertos > 0 && (
-              <span className="rounded-full bg-warn-soft px-1.5 text-xs font-semibold tabular-nums text-warn">
+              <SeloStatus tipo="warn" className="tabular-nums">
                 {abertos}
-              </span>
+              </SeloStatus>
             )}
           </TabsTrigger>
           <TabsTrigger value="historico">Histórico</TabsTrigger>

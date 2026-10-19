@@ -219,6 +219,12 @@ export type Pendencias = {
   aFazer: ChecklistLinha[];
 };
 
+/** Aberto = ainda sem baixa (código: resolvido_em; "o que fazer" do checklist: a_fazer_resolvido_em). */
+export const estaAberto = (c: {
+  resolvido_em?: string | null | undefined;
+  a_fazer_resolvido_em?: string | null | undefined;
+}): boolean => !(c.resolvido_em ?? c.a_fazer_resolvido_em);
+
 /** Mais recente primeiro: data do checklist, depois hora do envio. */
 export const maisRecente = (
   a: { data: string; created_at: string },
@@ -234,7 +240,7 @@ export function agruparPendencias(
   const out: Pendencias = { transferir: [], devolucao: [], ajuste: [], aFazer: [] };
 
   const enriquecidos = codigos
-    .filter((c) => mostrarResolvidos || !c.resolvido_em)
+    .filter((c) => mostrarResolvidos || estaAberto(c))
     .flatMap((c) => {
       const cl = porId.get(c.checklist_id);
       return cl ? [{ item: { ...c, data: cl.data, funcionaria: cl.funcionaria }, cl }] : [];
@@ -243,9 +249,7 @@ export function agruparPendencias(
   for (const { item } of enriquecidos) out[item.providencia].push(item);
 
   out.aFazer = checklists
-    .filter(
-      (c) => (c.a_fazer ?? "").trim() !== "" && (mostrarResolvidos || !c.a_fazer_resolvido_em),
-    )
+    .filter((c) => (c.a_fazer ?? "").trim() !== "" && (mostrarResolvidos || estaAberto(c)))
     .sort(maisRecente);
   return out;
 }

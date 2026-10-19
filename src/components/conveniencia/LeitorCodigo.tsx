@@ -53,8 +53,14 @@ export function LeitorCodigo({ aberto, onFechar, onLido, onFalha }: Props) {
     return encerrar;
   }, [aberto, video]);
 
+  // Fechado pela pessoa sem ter lido nada: avisa e leva ao campo para digitar.
+  function fecharSemLer() {
+    onFalha();
+    onFechar();
+  }
+
   return (
-    <Dialog open={aberto} onOpenChange={(v) => !v && onFechar()}>
+    <Dialog open={aberto} onOpenChange={(v) => !v && fecharSemLer()}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Ler código de barras</DialogTitle>

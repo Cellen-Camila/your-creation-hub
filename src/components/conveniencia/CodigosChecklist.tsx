@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useImperativeHandle, useRef, useState, type Ref } from "react";
 import { Camera, Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,7 +13,11 @@ export type CodigoForm = {
   ajuste?: string | undefined;
 };
 
+/** O formulário pergunta antes de enviar se sobrou código digitado e não adicionado. */
+export type CodigosHandle = { verificarRascunho: () => boolean };
+
 type Props = {
+  ref?: Ref<CodigosHandle>;
   value: CodigoForm[];
   onChange: (v: CodigoForm[]) => void;
   disabled?: boolean;
@@ -22,7 +26,7 @@ type Props = {
 const selectClass =
   "flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-base md:text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50";
 
-export function CodigosChecklist({ value, onChange, disabled }: Props) {
+export function CodigosChecklist({ ref, value, onChange, disabled }: Props) {
   const [codigo, setCodigo] = useState("");
   const [providencia, setProvidencia] = useState<Providencia>("transferir");
   const [quantidade, setQuantidade] = useState("1");
@@ -42,6 +46,15 @@ export function CodigosChecklist({ value, onChange, disabled }: Props) {
     }, 0);
     return () => clearTimeout(t);
   }, [lendo, foco]);
+
+  useImperativeHandle(ref, () => ({
+    verificarRascunho() {
+      if (codigo.trim() === "") return true;
+      setErro("Toque em Adicionar código ou apague o campo");
+      campoCodigo.current?.focus();
+      return false;
+    },
+  }));
 
   function aoLer(lido: string) {
     setCodigo(lido);
@@ -105,7 +118,10 @@ export function CodigosChecklist({ value, onChange, disabled }: Props) {
               disabled={disabled}
               aria-invalid={erro ? true : undefined}
               aria-describedby={erro ? "cod-erro" : undefined}
-              onChange={(e) => setCodigo(e.target.value)}
+              onChange={(e) => {
+                setCodigo(e.target.value);
+                setErro(null);
+              }}
               onKeyDown={aoTeclar}
             />
             <Button

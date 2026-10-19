@@ -90,7 +90,7 @@ export function FotosChecklist({ value, onChange, disabled }: Props) {
                 aria-label={`Remover foto ${i + 1}`}
                 disabled={disabled}
                 onClick={() => remover(i)}
-                className="absolute right-1 top-1 flex h-7 w-7 items-center justify-center rounded-full bg-background/90 text-foreground shadow focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                className="absolute right-1 top-1 flex h-10 w-10 items-center justify-center rounded-full bg-background/90 text-foreground shadow focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               >
                 <X className="h-4 w-4" aria-hidden />
               </button>

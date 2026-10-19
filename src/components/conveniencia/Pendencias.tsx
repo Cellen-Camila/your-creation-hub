@@ -14,18 +14,17 @@ import {
   type Providencia,
 } from "@/lib/checklist";
 import {
+  dataBR,
   dataHoraBR,
   useChecklists,
   useCodigos,
   useMarcarResolvido,
   useUsuarioId,
 } from "@/lib/conveniencia";
-import { fmt, parseDate } from "@/lib/docs";
 import { Esqueleto, FaixaErro, Vazio } from "./Estados";
+import { SeloStatus } from "./SeloStatus";
 
 type Tabela = "checklist_codigos" | "checklists";
-
-const dataBR = (iso: string) => fmt(parseDate(iso));
 
 function SeloResolvido({
   em,
@@ -38,10 +37,9 @@ function SeloResolvido({
 }) {
   const quem = por && por === usuarioId ? "por você" : "por outra pessoa da equipe";
   return (
-    <span className="inline-flex items-center gap-1.5 rounded-md bg-ok-soft px-2 py-0.5 text-xs font-semibold text-ok">
-      <CheckCircle2 className="h-3.5 w-3.5" aria-hidden />
+    <SeloStatus tipo="ok">
       Resolvido em {dataHoraBR(em)} · {quem}
-    </span>
+    </SeloStatus>
   );
 }
 
@@ -58,7 +56,7 @@ function Acao({
     <Button
       type="button"
       size="sm"
-      variant={resolvido ? "outline" : "default"}
+      variant={resolvido ? "outline" : "secondary"}
       disabled={salvando}
       onClick={onClick}
     >

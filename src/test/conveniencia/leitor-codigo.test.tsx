@@ -59,6 +59,31 @@ describe("LeitorCodigo", () => {
     await waitFor(() => expect(screen.getByLabelText("Quantidade")).toHaveFocus());
   });
 
+  it("fechar o diálogo sem ter lido nada avisa e foca o campo", async () => {
+    iniciarLeitor.mockResolvedValue({ parar: vi.fn() });
+    render(<Tela />);
+    abrir();
+    await screen.findByRole("dialog");
+    await waitFor(() => expect(iniciarLeitor).toHaveBeenCalled());
+    fireEvent.click(screen.getByRole("button", { name: /Close|Fechar/ }));
+    expect(await screen.findByText("Não consegui ler. Digite o código.")).toBeInTheDocument();
+    await waitFor(() => expect(screen.getByLabelText("Código de barras")).toHaveFocus());
+  });
+
+  it("leitura bem-sucedida não mostra o aviso de falha", async () => {
+    let ler: (t: string) => void = () => {};
+    iniciarLeitor.mockImplementation(async (_v: unknown, aoLer: (t: string) => void) => {
+      ler = aoLer;
+      return { parar: vi.fn() };
+    });
+    render(<Tela />);
+    abrir();
+    await waitFor(() => expect(iniciarLeitor).toHaveBeenCalled());
+    act(() => ler("123"));
+    await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument());
+    expect(screen.queryByText("Não consegui ler. Digite o código.")).not.toBeInTheDocument();
+  });
+
   it("ao fechar o diálogo, a câmera é liberada", async () => {
     const parar = vi.fn();
     iniciarLeitor.mockResolvedValue({ parar });
