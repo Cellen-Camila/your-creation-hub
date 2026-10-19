@@ -1,7 +1,13 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { nomeSeguro } from "@/lib/arquivos";
-import { paraPayload, type ChecklistValido } from "@/lib/checklist";
+import {
+  agruparPendencias,
+  paraPayload,
+  type ChecklistLinha,
+  type ChecklistValido,
+  type CodigoLinha,
+} from "@/lib/checklist";
 
 /** Tabela ou função do checklist ainda não existe no banco (migração não aplicada). */
 export function tabelaAusente(err: unknown): boolean {
@@ -64,4 +70,70 @@ export function useFotos(checklistId: string | undefined) {
       return data;
     },
   });
+}
+
+/** Id do login atual (a baixa guarda só o uuid; não há tabela de perfis). */
+export function useUsuarioId() {
+  return useQuery({
+    queryKey: ["usuario_id"],
+    staleTime: Infinity,
+    queryFn: async () => {
+      const { data } = await supabase.auth.getUser();
+      return data.user?.id ?? null;
+    },
+  });
+}
+
+/** Dá baixa (ou reabre) um código ou o "o que precisa ser feito" de um checklist. */
+export async function marcarResolvido(
+  tabela: "checklist_codigos" | "checklists",
+  id: string,
+  resolvido: boolean,
+): Promise<void> {
+  let em: string | null = null;
+  let por: string | null = null;
+  if (resolvido) {
+    const { data, error } = await supabase.auth.getUser();
+    if (error) throw error;
+    em = new Date().toISOString();
+    por = data.user?.id ?? null;
+  }
+  const { error } =
+    tabela === "checklist_codigos"
+      ? await supabase
+          .from("checklist_codigos")
+          .update({ resolvido_em: em, resolvido_por: por })
+          .eq("id", id)
+      : await supabase
+          .from("checklists")
+          .update({ a_fazer_resolvido_em: em, a_fazer_resolvido_por: por })
+          .eq("id", id);
+  if (error) throw error;
+}
+
+export function useMarcarResolvido() {
+  const qc = useQueryClient();
+  return async (tabela: "checklist_codigos" | "checklists", id: string, resolvido: boolean) => {
+    await marcarResolvido(tabela, id, resolvido);
+    await Promise.all([
+      qc.invalidateQueries({ queryKey: ["checklists"] }),
+      qc.invalidateQueries({ queryKey: ["checklist_codigos"] }),
+    ]);
+  };
+}
+
+/** Total de pendências abertas (para o selo da aba). */
+export function useTotalAbertos(): number {
+  const cl = useChecklists();
+  const co = useCodigos();
+  if (!cl.data || !co.data) return 0;
+  const g = agruparPendencias(co.data as CodigoLinha[], cl.data as ChecklistLinha[]);
+  return g.transferir.length + g.devolucao.length + g.ajuste.length + g.aFazer.length;
+}
+
+/** "dd/mm/aaaa hh:mm" no horário local. */
+export function dataHoraBR(iso: string): string {
+  const d = new Date(iso);
+  const hora = d.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+  return `${d.toLocaleDateString("pt-BR")} ${hora}`;
 }
