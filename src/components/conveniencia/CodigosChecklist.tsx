@@ -3,6 +3,7 @@ import { Camera, Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { LeitorCodigo } from "./LeitorCodigo";
 import { codigoSchema, normalizarCodigo, PROVIDENCIAS, type Providencia } from "@/lib/checklist";
 
 export type CodigoForm = {
@@ -15,17 +16,13 @@ export type CodigoForm = {
 type Props = {
   value: CodigoForm[];
   onChange: (v: CodigoForm[]) => void;
-  /** Parte 5: abre o leitor. Sem a prop, o botão não aparece. */
-  onLerCodigo?: () => void;
-  /** Quando muda, preenche o campo de código e foca a quantidade. */
-  codigoLido?: string;
   disabled?: boolean;
 };
 
 const selectClass =
   "flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-base md:text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50";
 
-export function CodigosChecklist({ value, onChange, onLerCodigo, codigoLido, disabled }: Props) {
+export function CodigosChecklist({ value, onChange, disabled }: Props) {
   const [codigo, setCodigo] = useState("");
   const [providencia, setProvidencia] = useState<Providencia>("transferir");
   const [quantidade, setQuantidade] = useState("1");
@@ -33,13 +30,29 @@ export function CodigosChecklist({ value, onChange, onLerCodigo, codigoLido, dis
   const [erro, setErro] = useState<string | null>(null);
   const campoCodigo = useRef<HTMLInputElement>(null);
   const campoQuantidade = useRef<HTMLInputElement>(null);
+  const [lendo, setLendo] = useState(false);
+  // O foco só pode voltar depois que o diálogo solta o foco dele.
+  const [foco, setFoco] = useState<"codigo" | "quantidade" | null>(null);
 
   useEffect(() => {
-    if (!codigoLido) return;
-    setCodigo(normalizarCodigo(codigoLido));
+    if (lendo || !foco) return;
+    const t = setTimeout(() => {
+      (foco === "codigo" ? campoCodigo : campoQuantidade).current?.focus();
+      setFoco(null);
+    }, 0);
+    return () => clearTimeout(t);
+  }, [lendo, foco]);
+
+  function aoLer(lido: string) {
+    setCodigo(lido);
     setErro(null);
-    campoQuantidade.current?.focus();
-  }, [codigoLido]);
+    setFoco("quantidade");
+  }
+
+  function aoFalhar() {
+    setErro("Não consegui ler. Digite o código.");
+    setFoco("codigo");
+  }
 
   function adicionar() {
     const r = codigoSchema.safeParse({
@@ -95,11 +108,14 @@ export function CodigosChecklist({ value, onChange, onLerCodigo, codigoLido, dis
               onChange={(e) => setCodigo(e.target.value)}
               onKeyDown={aoTeclar}
             />
-            {onLerCodigo && (
-              <Button type="button" variant="outline" disabled={disabled} onClick={onLerCodigo}>
-                <Camera className="h-4 w-4" aria-hidden /> Ler código
-              </Button>
-            )}
+            <Button
+              type="button"
+              variant="outline"
+              disabled={disabled}
+              onClick={() => setLendo(true)}
+            >
+              <Camera className="h-4 w-4" aria-hidden /> Ler código
+            </Button>
           </div>
         </div>
         <div className="space-y-1.5">
@@ -148,6 +164,12 @@ export function CodigosChecklist({ value, onChange, onLerCodigo, codigoLido, dis
           </div>
         )}
       </div>
+      <LeitorCodigo
+        aberto={lendo}
+        onFechar={() => setLendo(false)}
+        onLido={aoLer}
+        onFalha={aoFalhar}
+      />
       {erro && (
         <p id="cod-erro" role="alert" className="text-sm text-late">
           {erro}
